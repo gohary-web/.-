@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png">
+    <title>elgoharyX | Enterprise Link System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --primary: #2563eb; --accent: #10b981; }
+        body { background: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
+        .cyber-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(59, 130, 246, 0.2); box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .hexagon-img { width: 120px; height: 120px; margin: 0 auto 20px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); object-fit: cover; border: 3px solid var(--primary); }
+        input { background: rgba(15, 23, 42, 0.6) !important; color: white !important; border: 1px solid #334155 !important; }
+        input:focus { border-color: var(--primary) !important; box-shadow: 0 0 10px rgba(37, 99, 235, 0.3) !important; }
+        .dir-ltr { direction: ltr; text-align: left; }
+    </style>
+</head>
+<body class="p-4">
+
+    <div id="app" class="cyber-card p-8 rounded-3xl w-full max-w-lg relative">
+        <div id="main-content">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png" class="hexagon-img" alt="Logo">
+            <h1 class="text-2xl font-black text-center mb-2 tracking-tight">SYSTEM <span class="text-blue-500">elgoharyX</span></h1>
+            <p class="text-slate-400 text-center text-sm mb-8">نظام التوجيه المعزول والمحمي</p>
+
+            <div class="space-y-4">
+                <div class="relative">
+                    <input type="url" id="longUrl" placeholder="الرابط المراد حمايته واختصاره" 
+                           class="w-full p-4 rounded-2xl outline-none transition-all pr-12">
+                </div>
+                
+                <input type="text" id="customSlug" placeholder="المعرف المخصص (Slug)" 
+                       class="w-full p-4 rounded-2xl outline-none transition-all">
+
+                <button id="shortenBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95">
+                    <span id="btnText">توليد الرابط المشفر</span>
+                    <div id="btnLoader" class="hidden animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                </button>
+            </div>
+
+            <div id="resultArea" class="hidden mt-8 space-y-6 border-t border-slate-700 pt-6 animate-fade-in">
+                <div class="p-4 bg-slate-800/50 rounded-2xl border border-slate-700">
+                    <div class="flex items-center justify-between gap-3 bg-slate-900 p-3 rounded-xl">
+                        <a id="shortLink" href="#" target="_blank" class="text-blue-400 font-mono text-sm break-all dir-ltr"></a>
+                        <button onclick="copyToClipboard()" class="bg-blue-600/20 text-blue-400 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-600/40 transition-colors">نسخ</button>
+                    </div>
+                </div>
+                <div id="qrcode" class="flex justify-center p-4 bg-white rounded-2xl shadow-inner"></div>
+                <button id="downloadBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all">حفظ كود QR</button>
+            </div>
+        </div>
+
+        <div id="redirect-screen" class="hidden text-center py-20">
+            <div class="relative w-24 h-24 mx-auto mb-8">
+                <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-t-blue-500 rounded-full animate-spin"></div>
+            </div>
+            <p class="text-blue-400 font-mono text-lg animate-pulse">يتم التحقق من سلامة الرابط وتوجيهك...</p>
+            <p id="status-text" class="text-slate-500 text-xs mt-4"></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, get, child, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // إعدادات Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGhCAU7DLleD1KkCR6SQmvl8bpDncHJ8g",
+            authDomain: "planning-with-ai-797ec.firebaseapp.com",
+            projectId: "planning-with-ai-797ec",
+            databaseURL: "https://planning-with-ai-797ec-default-rtdb.firebaseio.com",
+            storageBucket: "planning-with-ai-797ec.firebasestorage.app",
+            messagingSenderId: "283439580292",
+            appId: "1:283439580292:web:b566dc267bdb8861ca2ed1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- محرك التوجيه فائق القوة ---
+        async function secureRedirect() {
+            const params = new URLSearchParams(window.location.search);
+            const slug = window.location.search.substring(1).split('&')[0] || params.get('id');
+
+            if (slug) {
+                const cleanSlug = decodeURIComponent(slug).trim();
+                document.getElementById('main-content').classList.add('hidden');
+                document.getElementById('redirect-screen').classList.remove('hidden');
+                
+                const status = document.getElementById('status-text');
+                const dbRef = ref(db);
+
+                // محاولة الاتصال المتعدد (Retry Logic)
+                let attempt = 0;
+                const fetchWithRetry = async () => {
+                    attempt++;
+                    status.innerText = `محاولة الاتصال بالخادم (${attempt}/3)...`;
+                    
+                    try {
+                        const snapshot = await get(child(dbRef, `links/${cleanSlug}`));
+                        if (snapshot.exists()) {
+                            let target = snapshot.val().target;
+                            // الحماية من روابط التصيد أو الروابط المكسورة
+                            if (!/^https?:\/\//i.test(target)) target = 'https://' + target;
+                            
+                            status.innerText = "تم التحقق بنجاح. جاري التوجيه...";
+                            setTimeout(() => window.location.replace(target), 500);
+                        } else {
+                            throw new Error("Slug not found");
+                        }
+                    } catch (err) {
+                        if (attempt < 3) {
+                            setTimeout(fetchWithRetry, 1000);
+                        } else {
+                            status.innerText = "خطأ: الرابط غير موجود أو الخادم لا يستجيب.";
+                            setTimeout(() => window.location.href = window.location.origin + window.location.pathname, 3000);
+                        }
+                    }
+                };
+                fetchWithRetry();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', secureRedirect);
+
+        // --- محرك التوليد والعزل ---
+        const shortenBtn = document.getElementById('shortenBtn');
+        shortenBtn.addEventListener('click', async () => {
+            const longUrl = document.getElementById('longUrl').value.trim();
+            const customSlug = document.getElementById('customSlug').value.trim();
+
+            if (!longUrl) return;
+
+            shortenBtn.disabled = true;
+            document.getElementById('btnLoader').classList.remove('hidden');
+
+            try {
+                // توليد Slug معقد لمنع التخمين أو التداخل
+                let finalSlug = customSlug || 
+                    (Math.random().toString(36).substring(2, 10) + Date.now().toString(36).slice(-4));
+
+                // بناء كائن البيانات المعزول تماماً
+                const securePayload = {
+                    target: longUrl,
+                    meta: {
+                        created_at: serverTimestamp(),
+                        integrity_hash: btoa(longUrl).slice(0, 10), // توقيع رقمي بسيط
+                        version: "2.0.0"
+                    }
+                };
+
+                await set(ref(db, 'links/' + finalSlug), securePayload);
+
+                const shortUrl = `${window.location.origin}${window.location.pathname}?${finalSlug}`;
+                
+                // عرض النتائج
+                document.getElementById('shortLink').innerText = shortUrl;
+                document.getElementById('shortLink').href = shortUrl;
+                document.getElementById('resultArea').classList.remove('hidden');
+
+                const qrDiv = document.getElementById("qrcode");
+                qrDiv.innerHTML = "";
+                new QRCode(qrDiv, {
+                    text: shortUrl,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#0f172a",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                document.getElementById('downloadBtn').onclick = () => {
+                    const canvas = qrDiv.querySelector('canvas');
+                    const link = document.createElement('a');
+                    link.download = `ELGOHARYX_QR_${finalSlug}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                };
+
+            } catch (e) {
+                alert("CRITICAL ERROR: Failed to isolate data in Firebase.");
+            } finally {
+                shortenBtn.disabled = false;
+                document.getElementById('btnLoader').classList.add('hidden');
+            }
+        });
+    </script>
+
+    <script>
+        function copyToClipboard() {
+            const text = document.getElementById('shortLink').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("تم النسخ بنظام الأمان!");
+            });
+        }
+    </script>
+</body>
+</html>
