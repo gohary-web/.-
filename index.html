@@ -9,7 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <!-- استخدام مكتبة html5-qrcode الأكثر توافقاً -->
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     
     <style>
         * { font-family: 'Inter', sans-serif; }
@@ -25,6 +26,7 @@
         .btn { background: var(--blue); color: white; font-size: 17px; font-weight: 600; padding: 14px; border-radius: 12px; border: none; width: 100%; cursor: pointer; }
         .btn:active { opacity: 0.8; }
         .btn:disabled { opacity: 0.5; }
+        .btn-outline { background: transparent; color: var(--blue); border: 1px solid var(--blue); }
         .sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 380px; height: 100%; background: white; z-index: 1000; transition: right 0.3s; box-shadow: -5px 0 20px rgba(0,0,0,0.1); overflow-y: auto; }
         .sidebar.open { right: 0; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 999; display: none; }
@@ -47,10 +49,26 @@
         
         /* ستايل كاميرا QR */
         #qrScanner { position: fixed; inset: 0; background: black; z-index: 3000; display: none; }
-        #qrScanner video { width: 100%; height: 100%; object-fit: cover; }
+        #qrScanner #qrReader { width: 100%; height: 100%; }
         #qrScanner .close-scanner { position: absolute; top: 20px; left: 20px; width: 44px; height: 44px; background: rgba(0,0,0,0.5); border-radius: 22px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; cursor: pointer; z-index: 3001; }
         #qrScanner .scanner-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
         #qrScanner .scanner-frame { width: 250px; height: 250px; border: 2px solid #007AFF; border-radius: 20px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); }
+        
+        /* أزرار القائمة الجانبية */
+        .sidebar-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #F8F8FC;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .sidebar-menu-item:hover { background: #EFEFF4; }
+        .sidebar-menu-item .icon { font-size: 24px; }
+        .sidebar-menu-item .label { font-weight: 500; flex: 1; }
     </style>
 </head>
 <body>
@@ -98,11 +116,6 @@
                         </div>
                         
                         <div id="authError" style="color: #FF3B30; font-size: 13px; text-align: center; margin-top: 12px;"></div>
-                        
-                        <!-- زر ربط جهاز جديد للموبايل -->
-                        <div style="margin-top: 20px; text-align: center;">
-                            <div onclick="showLinkDevice()" style="color: #007AFF; font-size: 14px; cursor: pointer; font-weight: 500;">➕ ربط جهاز كمبيوتر</div>
-                        </div>
                     </div>
                     
                     <!-- محتوى للكمبيوتر - QR Code -->
@@ -200,19 +213,38 @@
     <div class="sidebar" id="sidebar">
         <div style="padding: 60px 20px 20px; border-bottom: 0.5px solid #E5E5EA; position: relative;">
             <div onclick="toggleSidebar()" style="position: absolute; top: 20px; left: 20px; width: 36px; height: 36px; background: #F2F2F7; border-radius: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</div>
-            <div style="font-size: 28px; font-weight: 700;">الروابط</div>
+            <div style="font-size: 28px; font-weight: 700;">القائمة</div>
         </div>
         
         <div style="padding: 16px;">
+            <!-- معلومات المستخدم -->
             <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #F8F8FC; border-radius: 12px; margin-bottom: 16px;">
                 <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png" class="user-avatar-img" id="sidebarAvatar" alt="Logo">
                 <div style="flex: 1;">
                     <div style="font-weight: 600;" id="sidebarName"></div>
                     <div style="font-size: 13px; color: #8E8E93;" id="sidebarEmail"></div>
                 </div>
-                <div onclick="logout()" style="color: #FF3B30; font-weight: 500; cursor: pointer;">خروج</div>
             </div>
 
+            <!-- أزرار القائمة -->
+            <div class="sidebar-menu-item" onclick="showLinkDeviceFromSidebar()">
+                <span class="icon">💻</span>
+                <span class="label">ربط جهاز كمبيوتر</span>
+                <span style="color: #8E8E93;">→</span>
+            </div>
+            
+            <div class="sidebar-menu-item" onclick="logout()">
+                <span class="icon">🚪</span>
+                <span class="label">تسجيل الخروج</span>
+                <span style="color: #FF3B30;">→</span>
+            </div>
+
+            <!-- فاصل -->
+            <div style="height: 1px; background: #E5E5EA; margin: 16px 0;"></div>
+            
+            <!-- قائمة الروابط -->
+            <div style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">📎 روابطي</div>
+            
             <div id="sidebarLoading"><div class="loader"></div></div>
             <div id="linksList"></div>
             <div id="emptyState" class="hidden" style="text-align: center; padding: 40px 20px; color: #8E8E93;">لا توجد روابط</div>
@@ -222,7 +254,7 @@
     <!-- كاميرا QR Scanner -->
     <div id="qrScanner">
         <div class="close-scanner" onclick="stopQRScanner()">✕</div>
-        <video id="qrVideo" playsinline></video>
+        <div id="qrReader"></div>
         <div class="scanner-overlay">
             <div class="scanner-frame"></div>
         </div>
@@ -251,7 +283,7 @@
         let isPC = false;
         let currentSessionId = null;
         let sessionCheckInterval = null;
-        let qrScannerStream = null;
+        let html5QrCode = null;
 
         try {
             app = initializeApp(firebaseConfig);
@@ -281,7 +313,6 @@
             const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua);
             const isTouchScreen = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
             
-            // نعتبره كمبيوتر إذا لم يكن موبايل ولا تابلت ولا شاشة لمس
             return !isMobile && !isTablet && !isTouchScreen;
         }
 
@@ -335,7 +366,7 @@
                     password: btoa(password),
                     createdAt: new Date().toISOString(),
                     avatar: LOGO_URL,
-                    deviceId: deviceId  // ربط الحساب بالجهاز
+                    deviceId: deviceId
                 };
 
                 await set(ref(db, 'users/' + emailKey), userData);
@@ -384,7 +415,6 @@
                     return;
                 }
 
-                // التحقق من أن الجهاز هو نفس جهاز التسجيل
                 const currentDeviceId = getDeviceId();
                 if (userData.deviceId && userData.deviceId !== currentDeviceId) {
                     showToast('❌ هذا الحساب مرتبط بهاتف آخر. استخدم نفس الهاتف الذي سجلت به أول مرة.');
@@ -411,75 +441,65 @@
             }
         };
 
-        // عرض شاشة ربط جهاز
-        window.showLinkDevice = function() {
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('linkDeviceScreen').classList.remove('hidden');
+        // عرض شاشة ربط جهاز من القائمة الجانبية
+        window.showLinkDeviceFromSidebar = function() {
+            toggleSidebar(); // إغلاق القائمة الجانبية
             document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('linkDeviceScreen').classList.remove('hidden');
         };
 
         window.hideLinkDevice = function() {
             document.getElementById('linkDeviceScreen').classList.add('hidden');
-            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('mainScreen').classList.remove('hidden');
         };
 
-        // بدء مسح QR
+        // بدء مسح QR باستخدام html5-qrcode
         window.startQRScanner = async function() {
             const scanner = document.getElementById('qrScanner');
             scanner.style.display = 'block';
             
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' } 
-                });
-                qrScannerStream = stream;
-                const video = document.getElementById('qrVideo');
-                video.srcObject = stream;
-                video.play();
+                html5QrCode = new Html5Qrcode("qrReader");
                 
-                scanQRCode();
+                const config = { 
+                    fps: 10, 
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0
+                };
+                
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+                
+                function onScanSuccess(decodedText, decodedResult) {
+                    if (decodedText && decodedText.startsWith('elgoharyX_session:')) {
+                        const sessionId = decodedText.replace('elgoharyX_session:', '');
+                        stopQRScanner();
+                        linkDeviceBySession(sessionId);
+                    }
+                }
+                
+                function onScanFailure(error) {
+                    // تجاهل أخطاء المسح المستمرة
+                    console.log(`QR scan error: ${error}`);
+                }
+                
             } catch (e) {
-                showToast('تعذر الوصول للكاميرا');
+                console.error('Camera error:', e);
+                showToast('تعذر الوصول للكاميرا. تأكد من منح الصلاحيات.');
                 stopQRScanner();
             }
         };
 
-        function scanQRCode() {
-            const video = document.getElementById('qrVideo');
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            const scan = () => {
-                if (!qrScannerStream) return;
-                
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = jsQR(imageData.data, canvas.width, canvas.height);
-                    
-                    if (code) {
-                        const data = code.data;
-                        if (data && data.startsWith('elgoharyX_session:')) {
-                            const sessionId = data.replace('elgoharyX_session:', '');
-                            stopQRScanner();
-                            linkDeviceBySession(sessionId);
-                            return;
-                        }
-                    }
-                }
-                requestAnimationFrame(scan);
-            };
-            
-            requestAnimationFrame(scan);
-        }
-
         window.stopQRScanner = function() {
-            if (qrScannerStream) {
-                qrScannerStream.getTracks().forEach(t => t.stop());
-                qrScannerStream = null;
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    html5QrCode = null;
+                }).catch(e => console.log(e));
             }
             document.getElementById('qrScanner').style.display = 'none';
         };
@@ -496,9 +516,7 @@
 
         async function linkDeviceBySession(sessionId) {
             if (!currentUser) {
-                // إذا لم يكن مسجل دخول، نطلب تسجيل الدخول أولاً
-                showToast('الرجاء تسجيل الدخول أولاً');
-                hideLinkDevice();
+                showToast('يجب تسجيل الدخول أولاً');
                 return;
             }
             
@@ -517,7 +535,6 @@
                     return;
                 }
                 
-                // تحديث الجلسة بالمستخدم
                 await update(sessionRef, {
                     status: 'approved',
                     userId: currentUser.id,
@@ -543,13 +560,11 @@
             
             document.getElementById('pcSessionId').textContent = 'Session: ' + sessionId;
             
-            // إنشاء QR Code
             const qrDiv = document.getElementById('pcQrcode');
             qrDiv.innerHTML = '';
             const qrData = 'elgoharyX_session:' + sessionId;
             new QRCode(qrDiv, { text: qrData, width: 200, height: 200 });
             
-            // إنشاء الجلسة في Firebase
             const sessionRef = ref(db, 'pc_sessions/' + sessionId);
             set(sessionRef, {
                 sessionId: sessionId,
@@ -558,10 +573,8 @@
                 deviceInfo: navigator.userAgent
             });
             
-            // حذف الجلسة عند قطع الاتصال
             onDisconnect(sessionRef).remove();
             
-            // مراقبة حالة الجلسة
             sessionCheckInterval = setInterval(async () => {
                 try {
                     const snap = await get(sessionRef);
@@ -571,7 +584,6 @@
                             clearInterval(sessionCheckInterval);
                             document.getElementById('pcWaitingStatus').textContent = '✅ تم الربط! جاري تسجيل الدخول...';
                             
-                            // جلب بيانات المستخدم
                             const userSnap = await get(ref(db, 'users/' + data.userId));
                             if (userSnap.exists()) {
                                 const userData = userSnap.val();
@@ -583,14 +595,12 @@
                                 };
                                 localStorage.setItem('elgoharyX_user', JSON.stringify(currentUser));
                                 
-                                // حذف الجلسة
                                 await remove(sessionRef);
                                 
                                 showMainScreen();
                             }
                         }
                     } else {
-                        // الجلسة انتهت
                         clearInterval(sessionCheckInterval);
                         document.getElementById('pcWaitingStatus').textContent = '❌ انتهت صلاحية الجلسة';
                     }
@@ -615,6 +625,7 @@
             }
             
             document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('linkDeviceScreen').classList.add('hidden');
             showToast('تم تسجيل الخروج');
         };
 
@@ -807,7 +818,6 @@
             
             if (isPC) {
                 container.classList.add('container-pc');
-                // إظهار واجهة QR للكمبيوتر
                 document.getElementById('pcAuthContent').classList.remove('hidden');
                 document.getElementById('mobileAuthContent').classList.add('hidden');
                 startPCSession();
@@ -836,8 +846,8 @@
             if (sessionCheckInterval) {
                 clearInterval(sessionCheckInterval);
             }
-            if (qrScannerStream) {
-                qrScannerStream.getTracks().forEach(t => t.stop());
+            if (html5QrCode) {
+                html5QrCode.stop().catch(() => {});
             }
         });
     </script>
