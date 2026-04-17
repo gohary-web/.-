@@ -2,73 +2,631 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png">
     <title>elgoharyX · روابط</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- استخدام مكتبة html5-qrcode الأكثر توافقاً -->
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        :root { --blue: #007AFF; --bg: #F2F2F7; }
-        body { background: var(--bg); min-height: 100vh; display: flex; justify-content: center; margin: 0; }
-        .container { width: 100%; max-width: 428px; background: var(--bg); min-height: 100vh; }
+        * { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        :root {
+            --blue: #007AFF;
+            --green: #34C759;
+            --red: #FF3B30;
+            --orange: #FF9500;
+            --purple: #AF52DE;
+            --pink: #FF2D55;
+            --bg-primary: #F2F2F7;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F8F8FC;
+            --text-primary: #000000;
+            --text-secondary: #8E8E93;
+            --border-color: #E5E5EA;
+            --shadow: rgba(0,0,0,0.1);
+            --overlay: rgba(0,0,0,0.3);
+            --toast-bg: #1C1C1E;
+            --toast-text: #FFFFFF;
+            --icon-color: #007AFF;
+            --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --transition-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .dark-mode {
+            --blue: #0A84FF;
+            --green: #30D158;
+            --red: #FF453A;
+            --orange: #FF9F0A;
+            --purple: #BF5AF2;
+            --pink: #FF375F;
+            --bg-primary: #000000;
+            --bg-secondary: #1C1C1E;
+            --bg-tertiary: #2C2C2E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #98989E;
+            --border-color: #38383A;
+            --shadow: rgba(255,255,255,0.1);
+            --overlay: rgba(0,0,0,0.7);
+            --toast-bg: #3A3A3C;
+            --toast-text: #FFFFFF;
+            --icon-color: #0A84FF;
+        }
+        
+        body { 
+            background: var(--bg-primary); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            margin: 0;
+            color: var(--text-primary);
+            transition: background 0.4s var(--transition-smooth), color 0.3s var(--transition-smooth);
+            overflow-x: hidden;
+        }
+        
+        .container { 
+            width: 100%; 
+            max-width: 428px; 
+            background: var(--bg-primary); 
+            min-height: 100vh;
+            position: relative;
+        }
+        
         .container-pc { max-width: 600px !important; }
-        .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
-        .input-group { background: #F8F8FC; border-radius: 12px; padding: 4px 16px; margin-bottom: 16px; border: 0.5px solid #E5E5EA; }
-        .input-group:focus-within { border-color: var(--blue); background: white; }
-        .input-label { font-size: 11px; color: #8E8E93; text-transform: uppercase; padding-top: 8px; }
-        .input-field { width: 100%; border: none; background: transparent; padding: 8px 0 10px; font-size: 16px; outline: none; }
-        .btn { background: var(--blue); color: white; font-size: 17px; font-weight: 600; padding: 14px; border-radius: 12px; border: none; width: 100%; cursor: pointer; }
-        .btn:active { opacity: 0.8; }
-        .btn:disabled { opacity: 0.5; }
-        .btn-outline { background: transparent; color: var(--blue); border: 1px solid var(--blue); }
-        .sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 380px; height: 100%; background: white; z-index: 1000; transition: right 0.3s; box-shadow: -5px 0 20px rgba(0,0,0,0.1); overflow-y: auto; }
+        
+        @keyframes slideInFromRight {
+            0% { opacity: 0; transform: translateX(30px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes slideInFromBottom {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes floatIn {
+            0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .page-enter {
+            animation: slideInFromRight 0.4s var(--transition-smooth) forwards;
+        }
+        
+        .page-enter-bottom {
+            animation: slideInFromBottom 0.5s var(--transition-spring) forwards;
+        }
+        
+        .card { 
+            background: var(--bg-secondary); 
+            border-radius: 16px; 
+            padding: 20px; 
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            animation: floatIn 0.5s var(--transition-spring) forwards;
+            opacity: 0;
+            animation-delay: calc(var(--card-index, 0) * 0.1s);
+            box-shadow: 0 2px 8px var(--shadow);
+            transition: all 0.3s var(--transition-smooth);
+            backdrop-filter: blur(10px);
+            border: 0.5px solid var(--border-color);
+        }
+        
+        .card:nth-child(1) { --card-index: 1; }
+        .card:nth-child(2) { --card-index: 2; }
+        .card:nth-child(3) { --card-index: 3; }
+        
+        .input-group { 
+            background: var(--bg-tertiary); 
+            border-radius: 14px; 
+            padding: 4px 16px; 
+            margin-bottom: 16px; 
+            border: 0.5px solid var(--border-color);
+            transition: all 0.3s var(--transition-smooth);
+            animation: slideInFromBottom 0.4s var(--transition-smooth) forwards;
+            opacity: 0;
+        }
+        
+        .input-group:focus-within { 
+            border-color: var(--blue); 
+            background: var(--bg-secondary);
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
+        }
+        
+        .input-label { 
+            font-size: 11px; 
+            color: var(--text-secondary); 
+            text-transform: uppercase; 
+            padding-top: 8px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+        }
+        
+        .input-field { 
+            width: 100%; 
+            border: none; 
+            background: transparent; 
+            padding: 8px 0 10px; 
+            font-size: 16px; 
+            outline: none; 
+            color: var(--text-primary);
+        }
+        
+        .input-field::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .btn { 
+            background: var(--blue); 
+            color: white; 
+            font-size: 17px; 
+            font-weight: 600; 
+            padding: 14px; 
+            border-radius: 14px; 
+            border: none; 
+            width: 100%; 
+            cursor: pointer;
+            transition: all 0.3s var(--transition-bounce);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+        
+        .btn:active { 
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        }
+        
+        .btn:disabled { 
+            opacity: 0.5; 
+            transform: none;
+        }
+        
+        .btn i { font-size: 18px; }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--blue);
+            border: 1px solid var(--blue);
+            box-shadow: none;
+        }
+        
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            right: -100%; 
+            width: 100%; 
+            max-width: 380px; 
+            height: 100%; 
+            background: var(--bg-secondary); 
+            z-index: 1000; 
+            transition: right 0.4s var(--transition-smooth); 
+            box-shadow: -5px 0 30px var(--shadow); 
+            overflow-y: auto; 
+            color: var(--text-primary);
+            backdrop-filter: blur(20px);
+        }
+        
         .sidebar.open { right: 0; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 999; display: none; }
+        
+        .overlay { 
+            position: fixed; 
+            inset: 0; 
+            background: var(--overlay); 
+            z-index: 999; 
+            display: none;
+            backdrop-filter: blur(8px);
+        }
+        
         .overlay.active { display: block; }
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1C1C1E; color: white; padding: 12px 20px; border-radius: 30px; font-size: 14px; z-index: 2000; display: none; }
-        .toast.show { display: block; }
+        
+        .toast { 
+            position: fixed; 
+            bottom: 30px; 
+            left: 50%; 
+            transform: translateX(-50%) translateY(100px); 
+            background: var(--toast-bg); 
+            color: var(--toast-text); 
+            padding: 14px 24px; 
+            border-radius: 30px; 
+            font-size: 15px; 
+            z-index: 2000; 
+            display: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            font-weight: 500;
+            transition: transform 0.4s var(--transition-bounce);
+            backdrop-filter: blur(10px);
+            border: 0.5px solid rgba(255,255,255,0.1);
+        }
+        
+        .toast.show { 
+            display: block; 
+            transform: translateX(-50%) translateY(0);
+        }
+        
         .dir-ltr { direction: ltr; text-align: left; }
         .hidden { display: none !important; }
-        .nav-bar { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
-        .avatar { width: 60px; height: 60px; border-radius: 20px; margin: 0 auto 16px; display: block; object-fit: cover; }
-        .user-avatar-img { width: 50px; height: 50px; border-radius: 25px; object-fit: cover; }
-        .link-item { background: #F8F8FC; border-radius: 12px; padding: 16px; margin-bottom: 10px; }
-        .link-actions { display: flex; gap: 8px; margin-top: 12px; }
-        .link-btn { flex: 1; padding: 8px; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 500; cursor: pointer; }
-        .btn-copy { background: rgba(52,199,89,0.1); color: #34C759; }
-        .btn-edit { background: rgba(0,122,255,0.1); color: #007AFF; }
-        .btn-delete { background: rgba(255,59,48,0.1); color: #FF3B30; }
-        .loader { width: 40px; height: 40px; border: 3px solid #E5E5EA; border-top-color: #007AFF; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 20px auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* ستايل كاميرا QR */
-        #qrScanner { position: fixed; inset: 0; background: black; z-index: 3000; display: none; }
-        #qrScanner #qrReader { width: 100%; height: 100%; }
-        #qrScanner .close-scanner { position: absolute; top: 20px; left: 20px; width: 44px; height: 44px; background: rgba(0,0,0,0.5); border-radius: 22px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; cursor: pointer; z-index: 3001; }
-        #qrScanner .scanner-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-        #qrScanner .scanner-frame { width: 250px; height: 250px; border: 2px solid #007AFF; border-radius: 20px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); }
+        .nav-bar { 
+            padding: 12px 16px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            background: var(--bg-secondary); 
+            backdrop-filter: blur(20px); 
+            position: sticky; 
+            top: 0; 
+            z-index: 50; 
+            border-bottom: 0.5px solid var(--border-color);
+        }
         
-        /* أزرار القائمة الجانبية */
-        .sidebar-menu-item {
+        .avatar { 
+            width: 60px; 
+            height: 60px; 
+            border-radius: 20px; 
+            margin: 0 auto 16px; 
+            display: block; 
+            object-fit: cover;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        .user-avatar-img { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 25px; 
+            object-fit: cover;
+        }
+        
+        .link-item, .device-item { 
+            background: var(--bg-tertiary); 
+            border-radius: 14px; 
+            padding: 16px; 
+            margin-bottom: 10px;
+            transition: all 0.3s var(--transition-spring);
+            animation: slideInFromRight 0.4s var(--transition-smooth) forwards;
+            opacity: 0;
+            border: 0.5px solid transparent;
+        }
+        
+        .device-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 16px;
-            background: #F8F8FC;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
         }
-        .sidebar-menu-item:hover { background: #EFEFF4; }
-        .sidebar-menu-item .icon { font-size: 24px; }
-        .sidebar-menu-item .label { font-weight: 500; flex: 1; }
+        
+        .device-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(0,122,255,0.15), rgba(0,122,255,0.05));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue);
+            font-size: 24px;
+        }
+        
+        .device-info {
+            flex: 1;
+        }
+        
+        .device-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .device-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .device-badge {
+            background: var(--blue);
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        .device-badge.current {
+            background: var(--green);
+        }
+        
+        .device-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .device-action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s var(--transition-bounce);
+            color: var(--text-secondary);
+            background: transparent;
+        }
+        
+        .device-action-btn:hover {
+            background: var(--border-color);
+            transform: scale(1.1);
+        }
+        
+        .device-action-btn.edit:hover {
+            color: var(--blue);
+        }
+        
+        .device-action-btn.delete:hover {
+            color: var(--red);
+        }
+        
+        .link-actions { 
+            display: flex; 
+            gap: 8px; 
+            margin-top: 12px; 
+        }
+        
+        .link-btn { 
+            flex: 1; 
+            padding: 10px; 
+            border-radius: 10px; 
+            text-align: center; 
+            font-size: 13px; 
+            font-weight: 500; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.3s var(--transition-bounce);
+        }
+        
+        .btn-copy { background: rgba(52,199,89,0.1); color: var(--green); }
+        .btn-edit { background: rgba(0,122,255,0.1); color: var(--blue); }
+        .btn-delete { background: rgba(255,59,48,0.1); color: var(--red); }
+        
+        .loader { 
+            width: 44px; 
+            height: 44px; 
+            border: 3px solid var(--border-color); 
+            border-top-color: var(--blue); 
+            border-radius: 50%; 
+            animation: spin 0.8s linear infinite; 
+            margin: 20px auto;
+        }
+        
+        #qrScanner { 
+            position: fixed; 
+            inset: 0; 
+            background: black; 
+            z-index: 3000; 
+            display: none;
+        }
+        
+        #qrVideo { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        
+        #qrScanner .close-scanner { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            width: 48px; 
+            height: 48px; 
+            background: rgba(0,0,0,0.5); 
+            backdrop-filter: blur(10px);
+            border-radius: 24px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-size: 22px; 
+            cursor: pointer; 
+            z-index: 3001;
+            border: 0.5px solid rgba(255,255,255,0.2);
+        }
+        
+        #qrScanner .scanner-overlay { 
+            position: absolute; 
+            inset: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            pointer-events: none; 
+        }
+        
+        #qrScanner .scanner-frame { 
+            width: 260px; 
+            height: 260px; 
+            border: 3px solid var(--blue); 
+            border-radius: 24px; 
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        #qrScanner .scan-status { 
+            position: absolute; 
+            bottom: 100px; 
+            left: 20px; 
+            right: 20px; 
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            color: white; 
+            padding: 16px; 
+            border-radius: 16px; 
+            text-align: center; 
+            font-size: 15px; 
+            z-index: 3001;
+            font-weight: 500;
+        }
+        
+        .sidebar-menu-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            padding: 16px; 
+            background: var(--bg-tertiary); 
+            border-radius: 14px; 
+            margin-bottom: 8px; 
+            cursor: pointer; 
+            transition: all 0.3s var(--transition-spring);
+            color: var(--text-primary);
+            border: 0.5px solid transparent;
+            animation: slideInFromRight 0.4s var(--transition-smooth) forwards;
+            opacity: 0;
+        }
+        
+        .sidebar-menu-item .icon { 
+            width: 32px;
+            font-size: 22px; 
+            color: var(--blue);
+            text-align: center;
+        }
+        
+        .sidebar-menu-item .label { 
+            font-weight: 500; 
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .sidebar-menu-item .arrow {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .link-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(0,122,255,0.15), rgba(0,122,255,0.05));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue);
+        }
+        
+        #redirectScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            z-index: 500;
+        }
+        
+        #redirectScreen .redirect-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        #redirectScreen .redirect-content {
+            text-align: center;
+            animation: scaleIn 0.4s var(--transition-smooth);
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: var(--overlay);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            animation: scaleIn 0.3s var(--transition-spring);
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -78,13 +636,12 @@
             <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;">
                 <div class="card" style="width: 100%;">
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png" class="avatar" alt="Logo">
-                    <h2 style="font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 20px;">elgoharyX</h2>
+                    <h2 style="font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 20px; color: var(--text-primary);">elgoharyX</h2>
                     
-                    <!-- محتوى للموبايل فقط -->
                     <div id="mobileAuthContent">
                         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                            <div id="loginTab" class="active" onclick="switchTab('login')" style="flex: 1; text-align: center; padding: 12px; font-weight: 600; color: #007AFF; border-bottom: 2px solid #007AFF; cursor: pointer;">دخول</div>
-                            <div id="signupTab" onclick="switchTab('signup')" style="flex: 1; text-align: center; padding: 12px; font-weight: 600; color: #8E8E93; border-bottom: 2px solid transparent; cursor: pointer;">حساب جديد</div>
+                            <div id="loginTab" onclick="switchTab('login')" style="flex: 1; text-align: center; padding: 12px; font-weight: 600; color: var(--blue); border-bottom: 2px solid var(--blue); cursor: pointer;">دخول</div>
+                            <div id="signupTab" onclick="switchTab('signup')" style="flex: 1; text-align: center; padding: 12px; font-weight: 600; color: var(--text-secondary); border-bottom: 2px solid transparent; cursor: pointer;">حساب جديد</div>
                         </div>
 
                         <div id="loginForm">
@@ -96,7 +653,10 @@
                                 <div class="input-label">كلمة المرور</div>
                                 <input type="password" id="loginPassword" class="input-field dir-ltr" placeholder="••••••••">
                             </div>
-                            <button class="btn" onclick="login()" id="loginBtn">تسجيل الدخول</button>
+                            <button class="btn" onclick="login()" id="loginBtn">
+                                <i class="fas fa-arrow-right-to-bracket"></i>
+                                تسجيل الدخول
+                            </button>
                         </div>
 
                         <div id="signupForm" class="hidden">
@@ -112,48 +672,72 @@
                                 <div class="input-label">كلمة المرور</div>
                                 <input type="password" id="signupPassword" class="input-field dir-ltr" placeholder="••••••••">
                             </div>
-                            <button class="btn" onclick="signup()" id="signupBtn">إنشاء حساب</button>
+                            <button class="btn" onclick="signup()" id="signupBtn">
+                                <i class="fas fa-user-plus"></i>
+                                إنشاء حساب
+                            </button>
                         </div>
                         
-                        <div id="authError" style="color: #FF3B30; font-size: 13px; text-align: center; margin-top: 12px;"></div>
+                        <div id="authError" style="color: var(--red); font-size: 13px; text-align: center; margin-top: 12px;"></div>
                     </div>
                     
-                    <!-- محتوى للكمبيوتر - QR Code -->
                     <div id="pcAuthContent" class="hidden">
                         <div style="text-align: center; padding: 10px 0;">
-                            <p style="color: #8E8E93; margin-bottom: 20px;">امسح الكود من تطبيق elgoharyX على هاتفك لتسجيل الدخول</p>
-                            <div id="pcQrcode" style="display: flex; justify-content: center; margin: 20px 0;"></div>
-                            <p id="pcSessionId" class="dir-ltr" style="font-size: 12px; color: #8E8E93; margin: 10px 0;"></p>
-                            <div id="pcWaitingStatus" style="color: #007AFF; font-weight: 500;">⏳ في انتظار المسح...</div>
-                            <button class="btn" onclick="location.reload()" style="margin-top: 20px; background: #8E8E93;">تحديث الكود</button>
+                            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                                <i class="fas fa-qrcode" style="margin-left: 5px;"></i>
+                                امسح الكود من هاتفك لتسجيل الدخول
+                            </p>
+                            <div id="pcQrcode" style="display: flex; justify-content: center; margin: 20px 0; padding: 20px; background: white; border-radius: 20px;"></div>
+                            <p id="pcSessionId" class="dir-ltr" style="font-size: 18px; color: var(--text-secondary); margin: 10px 0; font-family: monospace; letter-spacing: 3px;"></p>
+                            <div id="pcWaitingStatus" style="color: var(--blue); font-weight: 500;">
+                                <i class="fas fa-clock"></i>
+                                في انتظار المسح...
+                            </div>
+                            <button class="btn" onclick="refreshPCSession()" style="margin-top: 20px; background: var(--text-secondary);">
+                                <i class="fas fa-rotate"></i>
+                                تحديث الكود
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: center; margin-top: 20px;">
+                        <div class="sidebar-menu-item" onclick="toggleTheme()" style="margin: 0 auto; padding: 12px 24px;">
+                            <span class="icon" id="themeToggleIcon"><i class="fas fa-moon"></i></span>
+                            <span class="label" id="themeToggleLabel">الوضع الليلي</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- شاشة ربط جهاز من الموبايل -->
+        <!-- شاشة ربط جهاز -->
         <div id="linkDeviceScreen" class="hidden">
             <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;">
                 <div class="card" style="width: 100%;">
                     <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                        <span onclick="hideLinkDevice()" style="font-size: 24px; cursor: pointer; margin-left: 15px;">←</span>
-                        <h2 style="font-size: 20px; font-weight: 700;">ربط جهاز كمبيوتر</h2>
+                        <span onclick="hideLinkDevice()" style="font-size: 22px; cursor: pointer; margin-left: 15px; color: var(--blue);">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
+                        <h2 style="font-size: 22px; font-weight: 700; color: var(--text-primary);">ربط جهاز كمبيوتر</h2>
                     </div>
                     
-                    <p style="color: #8E8E93; margin-bottom: 20px;">اختر طريقة ربط الجهاز:</p>
+                    <button class="btn" onclick="startQRScanner()" style="margin-bottom: 15px;">
+                        <i class="fas fa-camera"></i>
+                        مسح QR Code
+                    </button>
                     
-                    <button class="btn" onclick="startQRScanner()" style="margin-bottom: 15px;">📷 مسح QR Code من الكمبيوتر</button>
-                    
-                    <div style="text-align: center; color: #8E8E93; margin: 15px 0;">أو</div>
+                    <div style="text-align: center; color: var(--text-secondary); margin: 15px 0;">أو</div>
                     
                     <div class="input-group">
                         <div class="input-label">كود الجلسة</div>
-                        <input type="text" id="sessionCodeInput" class="input-field dir-ltr" placeholder="أدخل الكود الظاهر على الكمبيوتر">
+                        <input type="text" id="sessionCodeInput" class="input-field dir-ltr" placeholder="مثال: ABC123">
                     </div>
-                    <button class="btn" onclick="linkBySessionCode()">ربط الجهاز</button>
+                    <button class="btn" onclick="linkBySessionCode()">
+                        <i class="fas fa-link"></i>
+                        ربط الجهاز
+                    </button>
                     
-                    <div id="linkError" style="color: #FF3B30; font-size: 13px; text-align: center; margin-top: 12px;"></div>
+                    <div id="linkError" style="color: var(--red); font-size: 13px; text-align: center; margin-top: 12px;"></div>
                 </div>
             </div>
         </div>
@@ -162,107 +746,174 @@
         <div id="mainScreen" class="hidden">
             <div class="nav-bar">
                 <div></div>
-                <div style="font-size: 17px; font-weight: 600;">elgoharyX</div>
-                <div onclick="toggleSidebar()" style="color: #007AFF; font-size: 17px; cursor: pointer;">القائمة</div>
+                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">elgoharyX</div>
+                <div onclick="toggleSidebar()" style="color: var(--blue); font-size: 20px; cursor: pointer;">
+                    <i class="fas fa-bars"></i>
+                </div>
             </div>
 
             <div style="padding: 16px;">
                 <div class="card">
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png" class="avatar">
-                    <h2 style="font-size: 20px; font-weight: 700; text-align: center;" id="displayName"></h2>
-                    <p style="font-size: 14px; color: #8E8E93; text-align: center;" id="displayEmail"></p>
+                    <h2 style="font-size: 22px; font-weight: 700; text-align: center; color: var(--text-primary);" id="displayName"></h2>
+                    <p style="font-size: 15px; color: var(--text-secondary); text-align: center;" id="displayEmail"></p>
                 </div>
 
                 <div class="card">
                     <div class="input-group">
-                        <div class="input-label">الرابط الأصلي</div>
+                        <div class="input-label">
+                            <i class="fas fa-link" style="margin-left: 4px;"></i>
+                            الرابط الأصلي
+                        </div>
                         <input type="url" id="longUrl" class="input-field dir-ltr" placeholder="https://example.com">
                     </div>
                     <div class="input-group">
-                        <div class="input-label">معرف مخصص (اختياري)</div>
+                        <div class="input-label">
+                            <i class="fas fa-tag" style="margin-left: 4px;"></i>
+                            معرف مخصص (اختياري)
+                        </div>
                         <input type="text" id="customSlug" class="input-field dir-ltr" placeholder="my-link">
                     </div>
-                    <button class="btn" onclick="createLink()" id="shortenBtn">إنشاء رابط مختصر</button>
+                    <button class="btn" onclick="createLink()" id="shortenBtn">
+                        <i class="fas fa-scissors"></i>
+                        إنشاء رابط مختصر
+                    </button>
                 </div>
 
                 <div id="resultArea" class="hidden">
                     <div class="card">
-                        <div style="background: #F8F8FC; border-radius: 10px; padding: 14px; display: flex; align-items: center; justify-content: space-between;">
-                            <a id="shortLink" href="#" target="_blank" class="dir-ltr" style="color: #007AFF; text-decoration: none; flex: 1; word-break: break-all;"></a>
-                            <span onclick="copyLink()" style="color: #007AFF; font-weight: 600; cursor: pointer;">نسخ</span>
+                        <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+                            <a id="shortLink" href="#" target="_blank" class="dir-ltr" style="color: var(--blue); text-decoration: none; flex: 1; word-break: break-all;"></a>
+                            <span onclick="copyLink()" style="color: var(--blue); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <i class="far fa-copy"></i>
+                                نسخ
+                            </span>
                         </div>
-                        <div style="background: white; border-radius: 10px; padding: 20px; margin-top: 12px; text-align: center;">
+                        <div style="background: var(--bg-secondary); border-radius: 12px; padding: 24px; margin-top: 12px; text-align: center;">
                             <div id="qrcode" style="display: flex; justify-content: center;"></div>
-                            <div onclick="downloadQR()" style="color: #007AFF; font-weight: 600; margin-top: 12px; cursor: pointer;">حفظ QR</div>
+                            <div onclick="downloadQR()" style="color: var(--blue); font-weight: 600; margin-top: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <i class="fas fa-download"></i>
+                                حفظ QR
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- شاشة التوجيه -->
-        <div id="redirectScreen" class="hidden" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
-            <div class="loader"></div>
-            <div style="font-size: 20px; font-weight: 600; margin-top: 20px;">جاري التوجيه</div>
-            <div id="redirectStatus" style="color: #8E8E93; margin-top: 8px;"></div>
+    <!-- شاشة التوجيه -->
+    <div id="redirectScreen" class="hidden">
+        <div class="redirect-container">
+            <div class="redirect-content">
+                <div class="loader"></div>
+                <div style="font-size: 22px; font-weight: 600; margin-top: 24px; color: var(--text-primary);">جاري التوجيه</div>
+                <div id="redirectStatus" style="color: var(--text-secondary); margin-top: 8px;"></div>
+            </div>
         </div>
     </div>
 
     <!-- القائمة الجانبية -->
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
     <div class="sidebar" id="sidebar">
-        <div style="padding: 60px 20px 20px; border-bottom: 0.5px solid #E5E5EA; position: relative;">
-            <div onclick="toggleSidebar()" style="position: absolute; top: 20px; left: 20px; width: 36px; height: 36px; background: #F2F2F7; border-radius: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</div>
-            <div style="font-size: 28px; font-weight: 700;">القائمة</div>
+        <div style="padding: 60px 20px 20px; border-bottom: 0.5px solid var(--border-color); position: relative;">
+            <div onclick="toggleSidebar()" style="position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-primary);">
+                <i class="fas fa-times"></i>
+            </div>
+            <div style="font-size: 30px; font-weight: 700; color: var(--text-primary);">القائمة</div>
         </div>
         
         <div style="padding: 16px;">
-            <!-- معلومات المستخدم -->
-            <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #F8F8FC; border-radius: 12px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--bg-tertiary); border-radius: 14px; margin-bottom: 16px;">
                 <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png" class="user-avatar-img" id="sidebarAvatar" alt="Logo">
                 <div style="flex: 1;">
-                    <div style="font-weight: 600;" id="sidebarName"></div>
-                    <div style="font-size: 13px; color: #8E8E93;" id="sidebarEmail"></div>
+                    <div style="font-weight: 600; color: var(--text-primary);" id="sidebarName"></div>
+                    <div style="font-size: 13px; color: var(--text-secondary);" id="sidebarEmail"></div>
                 </div>
             </div>
 
-            <!-- أزرار القائمة -->
-            <div class="sidebar-menu-item" onclick="showLinkDeviceFromSidebar()">
-                <span class="icon">💻</span>
+            <div class="sidebar-menu-item" onclick="showLinkDeviceFromSidebar()" id="linkDeviceMenuItem">
+                <span class="icon"><i class="fas fa-desktop"></i></span>
                 <span class="label">ربط جهاز كمبيوتر</span>
-                <span style="color: #8E8E93;">→</span>
+                <span class="arrow"><i class="fas fa-chevron-left"></i></span>
+            </div>
+            
+            <div class="sidebar-menu-item" onclick="toggleTheme()">
+                <span class="icon" id="themeIcon"><i class="fas fa-moon"></i></span>
+                <span class="label" id="themeLabel">الوضع الليلي</span>
+                <span class="arrow"><i class="fas fa-chevron-left"></i></span>
             </div>
             
             <div class="sidebar-menu-item" onclick="logout()">
-                <span class="icon">🚪</span>
+                <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
                 <span class="label">تسجيل الخروج</span>
-                <span style="color: #FF3B30;">→</span>
+                <span class="arrow" style="color: var(--red);"><i class="fas fa-chevron-left"></i></span>
             </div>
 
-            <!-- فاصل -->
-            <div style="height: 1px; background: #E5E5EA; margin: 16px 0;"></div>
+            <div class="section-divider"></div>
             
-            <!-- قائمة الروابط -->
-            <div style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">📎 روابطي</div>
+            <!-- قسم الأجهزة المرتبطة -->
+            <div class="section-title">
+                <i class="fas fa-laptop" style="color: var(--blue);"></i>
+                الأجهزة المرتبطة
+            </div>
+            
+            <div id="devicesLoading"><div class="loader"></div></div>
+            <div id="devicesList"></div>
+            <div id="devicesEmptyState" class="hidden" style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                <i class="fas fa-laptop" style="font-size: 32px; margin-bottom: 8px; opacity: 0.3;"></i>
+                <p style="font-size: 14px;">لا توجد أجهزة مرتبطة</p>
+            </div>
+            
+            <div class="section-divider"></div>
+            
+            <!-- قسم الروابط -->
+            <div class="section-title">
+                <i class="fas fa-link" style="color: var(--blue);"></i>
+                روابطي
+            </div>
             
             <div id="sidebarLoading"><div class="loader"></div></div>
             <div id="linksList"></div>
-            <div id="emptyState" class="hidden" style="text-align: center; padding: 40px 20px; color: #8E8E93;">لا توجد روابط</div>
+            <div id="emptyState" class="hidden" style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                <i class="fas fa-link" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                <p style="font-size: 16px;">لا توجد روابط</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal تعديل اسم الجهاز -->
+    <div id="editDeviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">تعديل اسم الجهاز</div>
+            <div class="input-group">
+                <div class="input-label">اسم الجهاز</div>
+                <input type="text" id="editDeviceNameInput" class="input-field" placeholder="جهازي">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeEditDeviceModal()">إلغاء</button>
+                <button class="btn" onclick="saveDeviceName()">حفظ</button>
+            </div>
         </div>
     </div>
 
     <!-- كاميرا QR Scanner -->
     <div id="qrScanner">
-        <div class="close-scanner" onclick="stopQRScanner()">✕</div>
-        <div id="qrReader"></div>
+        <div class="close-scanner" onclick="stopQRScanner()">
+            <i class="fas fa-times"></i>
+        </div>
+        <video id="qrVideo" playsinline></video>
         <div class="scanner-overlay">
             <div class="scanner-frame"></div>
+        </div>
+        <div class="scan-status" id="scanStatus">
+            <i class="fas fa-qrcode"></i>
+            جاري البحث عن QR Code...
         </div>
     </div>
 
     <div id="toast" class="toast"></div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, get, onValue, remove, update, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -281,60 +932,157 @@
 
         let app, db, currentUser = null;
         let isPC = false;
-        let currentSessionId = null;
         let sessionCheckInterval = null;
-        let html5QrCode = null;
+        let currentSessionRef = null;
+        let currentDeviceId = null;
+        let editingDeviceId = null;
 
         try {
             app = initializeApp(firebaseConfig);
             db = getDatabase(app);
             console.log('✅ Firebase connected');
-            window.dbReady = true;
         } catch (e) {
             console.error('Firebase error:', e);
             showToast('خطأ في الاتصال بقاعدة البيانات');
-            window.dbReady = false;
         }
 
-        // توليد معرف فريد للجهاز
         function getDeviceId() {
-            let deviceId = localStorage.getItem('elgoharyX_deviceId');
+            let deviceId = localStorage.getItem('device_id');
             if (!deviceId) {
-                deviceId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
-                localStorage.setItem('elgoharyX_deviceId', deviceId);
+                deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('device_id', deviceId);
             }
+            currentDeviceId = deviceId;
             return deviceId;
         }
 
-        // الكشف عن جهاز الكمبيوتر
         function detectPC() {
-            const ua = navigator.userAgent;
-            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-            const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua);
-            const isTouchScreen = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-            
-            return !isMobile && !isTablet && !isTouchScreen;
+            return !(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
         }
 
-        // دوال عامة
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            if (/Android/i.test(ua)) return 'android';
+            if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+            if (/Windows/i.test(ua)) return 'windows';
+            if (/Mac/i.test(ua)) return 'mac';
+            if (/Linux/i.test(ua)) return 'linux';
+            return 'unknown';
+        }
+
+        function getDeviceIcon(deviceType) {
+            const icons = {
+                'android': 'fab fa-android',
+                'ios': 'fab fa-apple',
+                'windows': 'fab fa-windows',
+                'mac': 'fab fa-apple',
+                'linux': 'fab fa-linux',
+                'unknown': 'fas fa-laptop'
+            };
+            return icons[deviceType] || 'fas fa-laptop';
+        }
+
+        function getDeviceTypeName(deviceType) {
+            const names = {
+                'android': 'أندرويد',
+                'ios': 'آيفون',
+                'windows': 'ويندوز',
+                'mac': 'ماك',
+                'linux': 'لينكس',
+                'unknown': 'جهاز'
+            };
+            return names[deviceType] || 'جهاز';
+        }
+
+        function getLocationFromIP() {
+            return new Promise((resolve) => {
+                fetch('https://ipapi.co/json/')
+                    .then(res => res.json())
+                    .then(data => {
+                        resolve(`${data.city || ''}, ${data.country_name || ''}`.trim() || 'غير معروف');
+                    })
+                    .catch(() => resolve('غير معروف'));
+            });
+        }
+
+        async function registerDevice() {
+            if (!currentUser) return;
+            
+            const deviceId = getDeviceId();
+            const deviceType = getDeviceType();
+            const location = await getLocationFromIP();
+            
+            const deviceRef = ref(db, `users/${currentUser.id}/devices/${deviceId}`);
+            const snap = await get(deviceRef);
+            
+            const deviceData = {
+                deviceId,
+                deviceType,
+                deviceName: snap.exists() ? snap.val().deviceName : `${getDeviceTypeName(deviceType)} ${new Date().toLocaleDateString('ar-EG')}`,
+                location,
+                lastActive: Date.now(),
+                userAgent: navigator.userAgent.substring(0, 100),
+                isCurrent: true
+            };
+            
+            await set(deviceRef, deviceData);
+            
+            // تحديث آخر نشاط كل دقيقة
+            setInterval(async () => {
+                if (currentUser) {
+                    await update(ref(db, `users/${currentUser.id}/devices/${deviceId}`), {
+                        lastActive: Date.now()
+                    });
+                }
+            }, 60000);
+            
+            onDisconnect(deviceRef).update({ isCurrent: false });
+        }
+
         window.showToast = function(msg) {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        };
+
+        window.toggleTheme = function() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            const themeIcon = document.getElementById('themeIcon');
+            const themeLabel = document.getElementById('themeLabel');
+            const themeToggleIcon = document.getElementById('themeToggleIcon');
+            const themeToggleLabel = document.getElementById('themeToggleLabel');
+            
+            if (isDark) {
+                if (themeIcon) themeIcon.innerHTML = '<i class="fas fa-sun"></i>';
+                if (themeLabel) themeLabel.textContent = 'الوضع النهاري';
+                if (themeToggleIcon) themeToggleIcon.innerHTML = '<i class="fas fa-sun"></i>';
+                if (themeToggleLabel) themeToggleLabel.textContent = 'الوضع النهاري';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                if (themeIcon) themeIcon.innerHTML = '<i class="fas fa-moon"></i>';
+                if (themeLabel) themeLabel.textContent = 'الوضع الليلي';
+                if (themeToggleIcon) themeToggleIcon.innerHTML = '<i class="fas fa-moon"></i>';
+                if (themeToggleLabel) themeToggleLabel.textContent = 'الوضع الليلي';
+                localStorage.setItem('theme', 'light');
+            }
         };
 
         window.switchTab = function(tab) {
-            document.getElementById('loginTab').style.cssText = tab === 'login' ? 'color: #007AFF; border-bottom: 2px solid #007AFF;' : 'color: #8E8E93; border-bottom: 2px solid transparent;';
-            document.getElementById('signupTab').style.cssText = tab === 'signup' ? 'color: #007AFF; border-bottom: 2px solid #007AFF;' : 'color: #8E8E93; border-bottom: 2px solid transparent;';
+            document.getElementById('loginTab').style.cssText = tab === 'login' ? 
+                'color: var(--blue); border-bottom: 2px solid var(--blue);' : 
+                'color: var(--text-secondary); border-bottom: 2px solid transparent;';
+            document.getElementById('signupTab').style.cssText = tab === 'signup' ? 
+                'color: var(--blue); border-bottom: 2px solid var(--blue);' : 
+                'color: var(--text-secondary); border-bottom: 2px solid transparent;';
             document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
             document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
+            document.getElementById('authError').textContent = '';
         };
 
-        // إنشاء حساب
         window.signup = async function() {
-            if (!db) { showToast('قاعدة البيانات غير متصلة'); return; }
-            
             const name = document.getElementById('signupName').value.trim();
             const email = document.getElementById('signupEmail').value.trim().toLowerCase();
             const password = document.getElementById('signupPassword').value;
@@ -344,49 +1092,45 @@
 
             const btn = document.getElementById('signupBtn');
             btn.disabled = true;
-            btn.textContent = 'جاري الإنشاء...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
 
             try {
                 const emailKey = email.replace(/\./g, '_').replace(/\@/g, '_at_');
-                
                 const userSnap = await get(ref(db, 'users/' + emailKey));
+                
                 if (userSnap.exists()) {
                     showToast('البريد مستخدم بالفعل');
                     btn.disabled = false;
-                    btn.textContent = 'إنشاء حساب';
+                    btn.innerHTML = '<i class="fas fa-user-plus"></i> إنشاء حساب';
                     return;
                 }
 
                 const deviceId = getDeviceId();
-                
                 const userData = {
                     id: emailKey,
-                    name: name,
-                    email: email,
+                    name, email,
                     password: btoa(password),
                     createdAt: new Date().toISOString(),
                     avatar: LOGO_URL,
-                    deviceId: deviceId
+                    deviceId
                 };
 
                 await set(ref(db, 'users/' + emailKey), userData);
-                
                 currentUser = { id: emailKey, name, email, avatar: LOGO_URL, deviceId };
-                localStorage.setItem('elgoharyX_user', JSON.stringify(currentUser));
-                showToast('تم إنشاء الحساب');
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                
+                await registerDevice();
+                
+                showToast('🎉 تم إنشاء الحساب بنجاح');
                 showMainScreen();
             } catch (e) {
-                console.error(e);
                 showToast('خطأ: ' + e.message);
                 btn.disabled = false;
-                btn.textContent = 'إنشاء حساب';
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> إنشاء حساب';
             }
         };
 
-        // تسجيل دخول
         window.login = async function() {
-            if (!db) { showToast('قاعدة البيانات غير متصلة'); return; }
-            
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value;
 
@@ -394,7 +1138,7 @@
 
             const btn = document.getElementById('loginBtn');
             btn.disabled = true;
-            btn.textContent = 'جاري الدخول...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الدخول...';
 
             try {
                 const emailKey = email.replace(/\./g, '_').replace(/\@/g, '_at_');
@@ -403,7 +1147,7 @@
                 if (!userSnap.exists()) {
                     showToast('البريد غير مسجل');
                     btn.disabled = false;
-                    btn.textContent = 'تسجيل الدخول';
+                    btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> تسجيل الدخول';
                     return;
                 }
 
@@ -411,15 +1155,15 @@
                 if (btoa(password) !== userData.password) {
                     showToast('كلمة المرور غير صحيحة');
                     btn.disabled = false;
-                    btn.textContent = 'تسجيل الدخول';
+                    btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> تسجيل الدخول';
                     return;
                 }
 
                 const currentDeviceId = getDeviceId();
                 if (userData.deviceId && userData.deviceId !== currentDeviceId) {
-                    showToast('❌ هذا الحساب مرتبط بهاتف آخر. استخدم نفس الهاتف الذي سجلت به أول مرة.');
+                    showToast('❌ هذا الحساب مرتبط بهاتف آخر');
                     btn.disabled = false;
-                    btn.textContent = 'تسجيل الدخول';
+                    btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> تسجيل الدخول';
                     return;
                 }
 
@@ -428,22 +1172,23 @@
                     name: userData.name, 
                     email: userData.email,
                     avatar: userData.avatar || LOGO_URL,
-                    deviceId: userData.deviceId || currentDeviceId
+                    deviceId: userData.deviceId
                 };
-                localStorage.setItem('elgoharyX_user', JSON.stringify(currentUser));
-                showToast('مرحباً ' + userData.name);
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                
+                await registerDevice();
+                
+                showToast('👋 مرحباً ' + userData.name);
                 showMainScreen();
             } catch (e) {
-                console.error(e);
                 showToast('خطأ: ' + e.message);
                 btn.disabled = false;
-                btn.textContent = 'تسجيل الدخول';
+                btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> تسجيل الدخول';
             }
         };
 
-        // عرض شاشة ربط جهاز من القائمة الجانبية
         window.showLinkDeviceFromSidebar = function() {
-            toggleSidebar(); // إغلاق القائمة الجانبية
+            toggleSidebar();
             document.getElementById('mainScreen').classList.add('hidden');
             document.getElementById('linkDeviceScreen').classList.remove('hidden');
         };
@@ -453,60 +1198,228 @@
             document.getElementById('mainScreen').classList.remove('hidden');
         };
 
-        // بدء مسح QR باستخدام html5-qrcode
-        window.startQRScanner = async function() {
-            const scanner = document.getElementById('qrScanner');
-            scanner.style.display = 'block';
+        // إدارة الأجهزة
+        function loadDevices() {
+            if (!currentUser) return;
+            
+            const devicesRef = ref(db, `users/${currentUser.id}/devices`);
+            onValue(devicesRef, (snapshot) => {
+                document.getElementById('devicesLoading').style.display = 'none';
+                const listDiv = document.getElementById('devicesList');
+                listDiv.innerHTML = '';
+
+                if (snapshot.exists()) {
+                    const devices = snapshot.val();
+                    const deviceIds = Object.keys(devices);
+                    
+                    if (deviceIds.length === 0) {
+                        document.getElementById('devicesEmptyState').classList.remove('hidden');
+                        return;
+                    }
+                    
+                    document.getElementById('devicesEmptyState').classList.add('hidden');
+                    
+                    deviceIds.forEach((deviceId, index) => {
+                        const device = devices[deviceId];
+                        const isCurrent = deviceId === currentDeviceId;
+                        const lastActive = new Date(device.lastActive).toLocaleString('ar-EG', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            day: '2-digit',
+                            month: '2-digit'
+                        });
+                        
+                        const div = document.createElement('div');
+                        div.className = 'device-item';
+                        div.style.animationDelay = (index * 0.05) + 's';
+                        div.innerHTML = `
+                            <div class="device-icon">
+                                <i class="${getDeviceIcon(device.deviceType)}"></i>
+                            </div>
+                            <div class="device-info">
+                                <div class="device-name">
+                                    ${device.deviceName || getDeviceTypeName(device.deviceType)}
+                                    ${isCurrent ? '<span class="device-badge current" style="margin-right: 8px;">الحالي</span>' : ''}
+                                </div>
+                                <div class="device-details">
+                                    <span><i class="fas fa-map-marker-alt"></i> ${device.location || 'غير معروف'}</span>
+                                    <span><i class="fas fa-clock"></i> ${lastActive}</span>
+                                </div>
+                            </div>
+                            <div class="device-actions">
+                                <div class="device-action-btn edit" onclick="editDeviceName('${deviceId}', '${device.deviceName || ''}')">
+                                    <i class="fas fa-pen"></i>
+                                </div>
+                                ${!isCurrent ? `
+                                <div class="device-action-btn delete" onclick="deleteDevice('${deviceId}')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </div>
+                                ` : ''}
+                            </div>
+                        `;
+                        listDiv.appendChild(div);
+                    });
+                } else {
+                    document.getElementById('devicesEmptyState').classList.remove('hidden');
+                }
+            });
+        }
+
+        window.editDeviceName = function(deviceId, currentName) {
+            editingDeviceId = deviceId;
+            document.getElementById('editDeviceNameInput').value = currentName;
+            document.getElementById('editDeviceModal').classList.add('active');
+        };
+
+        window.closeEditDeviceModal = function() {
+            document.getElementById('editDeviceModal').classList.remove('active');
+            editingDeviceId = null;
+        };
+
+        window.saveDeviceName = async function() {
+            const newName = document.getElementById('editDeviceNameInput').value.trim();
+            if (!newName) {
+                showToast('أدخل اسم الجهاز');
+                return;
+            }
             
             try {
-                html5QrCode = new Html5Qrcode("qrReader");
-                
-                const config = { 
-                    fps: 10, 
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0
-                };
-                
-                await html5QrCode.start(
-                    { facingMode: "environment" },
-                    config,
-                    onScanSuccess,
-                    onScanFailure
-                );
-                
-                function onScanSuccess(decodedText, decodedResult) {
-                    if (decodedText && decodedText.startsWith('elgoharyX_session:')) {
-                        const sessionId = decodedText.replace('elgoharyX_session:', '');
-                        stopQRScanner();
-                        linkDeviceBySession(sessionId);
-                    }
-                }
-                
-                function onScanFailure(error) {
-                    // تجاهل أخطاء المسح المستمرة
-                    console.log(`QR scan error: ${error}`);
-                }
-                
+                await update(ref(db, `users/${currentUser.id}/devices/${editingDeviceId}`), {
+                    deviceName: newName
+                });
+                showToast('✅ تم تحديث اسم الجهاز');
+                closeEditDeviceModal();
             } catch (e) {
-                console.error('Camera error:', e);
-                showToast('تعذر الوصول للكاميرا. تأكد من منح الصلاحيات.');
-                stopQRScanner();
+                showToast('فشل التحديث');
             }
         };
 
+        window.deleteDevice = async function(deviceId) {
+            if (!confirm('هل أنت متأكد من حذف هذا الجهاز؟ لن يتمكن من الوصول للحساب.')) return;
+            
+            try {
+                await remove(ref(db, `users/${currentUser.id}/devices/${deviceId}`));
+                showToast('🗑️ تم حذف الجهاز');
+            } catch (e) {
+                showToast('فشل الحذف');
+            }
+        };
+
+        // باقي الدوال بدون تغيير...
+        window.startQRScanner = async function() {
+            const scannerDiv = document.getElementById('qrScanner');
+            const video = document.getElementById('qrVideo');
+            const status = document.getElementById('scanStatus');
+            
+            scannerDiv.style.display = 'block';
+            status.innerHTML = '<i class="fas fa-camera"></i> جاري تشغيل الكاميرا...';
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+                
+                video.srcObject = stream;
+                await video.play();
+                
+                status.innerHTML = '<i class="fas fa-qrcode"></i> جاري البحث عن QR Code...';
+                
+                if ('BarcodeDetector' in window) {
+                    const detector = new BarcodeDetector({ formats: ['qr_code'] });
+                    
+                    const scan = async () => {
+                        if (scannerDiv.style.display === 'none') return;
+                        
+                        try {
+                            const barcodes = await detector.detect(video);
+                            if (barcodes.length > 0) {
+                                const data = barcodes[0].rawValue;
+                                if (data && data.includes('session:')) {
+                                    const sessionId = data.split('session:')[1];
+                                    stopQRScanner();
+                                    linkDeviceBySession(sessionId);
+                                    return;
+                                }
+                            }
+                        } catch (e) {}
+                        
+                        requestAnimationFrame(scan);
+                    };
+                    
+                    scan();
+                } else {
+                    await loadJsQR();
+                    scanWithJsQR(video);
+                }
+                
+            } catch (e) {
+                status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> تعذر الوصول للكاميرا';
+                console.error(e);
+            }
+        };
+
+        function loadJsQR() {
+            return new Promise((resolve) => {
+                if (window.jsQR) { resolve(); return; }
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
+                script.onload = resolve;
+                document.head.appendChild(script);
+            });
+        }
+
+        function scanWithJsQR(video) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const status = document.getElementById('scanStatus');
+            const scannerDiv = document.getElementById('qrScanner');
+            
+            const scan = () => {
+                if (scannerDiv.style.display === 'none') return;
+                
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    if (canvas.width > 0) {
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        
+                        if (window.jsQR) {
+                            const code = window.jsQR(imageData.data, canvas.width, canvas.height);
+                            
+                            if (code && code.data) {
+                                const data = code.data;
+                                status.innerHTML = '<i class="fas fa-check-circle"></i> تم العثور على كود!';
+                                
+                                if (data.includes('session:')) {
+                                    const sessionId = data.split('session:')[1];
+                                    stopQRScanner();
+                                    linkDeviceBySession(sessionId);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                requestAnimationFrame(scan);
+            };
+            
+            requestAnimationFrame(scan);
+        }
+
         window.stopQRScanner = function() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    html5QrCode.clear();
-                    html5QrCode = null;
-                }).catch(e => console.log(e));
+            const video = document.getElementById('qrVideo');
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(t => t.stop());
+                video.srcObject = null;
             }
             document.getElementById('qrScanner').style.display = 'none';
         };
 
-        // ربط الجهاز بكود الجلسة
         window.linkBySessionCode = function() {
-            const code = document.getElementById('sessionCodeInput').value.trim();
+            const code = document.getElementById('sessionCodeInput').value.trim().toUpperCase();
             if (!code) {
                 showToast('أدخل كود الجلسة');
                 return;
@@ -525,12 +1438,12 @@
                 const snap = await get(sessionRef);
                 
                 if (!snap.exists()) {
-                    document.getElementById('linkError').textContent = 'كود الجلسة غير صالح أو منتهي';
+                    document.getElementById('linkError').textContent = 'كود الجلسة غير صالح';
                     return;
                 }
                 
-                const sessionData = snap.val();
-                if (sessionData.status !== 'waiting') {
+                const session = snap.val();
+                if (session.status !== 'waiting') {
                     document.getElementById('linkError').textContent = 'هذا الكود مستخدم بالفعل';
                     return;
                 }
@@ -539,7 +1452,7 @@
                     status: 'approved',
                     userId: currentUser.id,
                     userName: currentUser.name,
-                    approvedAt: new Date().toISOString()
+                    approvedAt: Date.now()
                 });
                 
                 showToast('✅ تم ربط الجهاز بنجاح!');
@@ -548,107 +1461,123 @@
                 document.getElementById('linkError').textContent = '';
                 
             } catch (e) {
-                console.error(e);
                 document.getElementById('linkError').textContent = 'خطأ في الربط';
             }
         }
 
-        // بدء جلسة PC
+        function generateSessionCode() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
         function startPCSession() {
-            const sessionId = 'session_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
-            currentSessionId = sessionId;
+            const sessionId = generateSessionCode();
             
-            document.getElementById('pcSessionId').textContent = 'Session: ' + sessionId;
+            document.getElementById('pcSessionId').textContent = 'الكود: ' + sessionId;
             
             const qrDiv = document.getElementById('pcQrcode');
             qrDiv.innerHTML = '';
-            const qrData = 'elgoharyX_session:' + sessionId;
-            new QRCode(qrDiv, { text: qrData, width: 200, height: 200 });
-            
-            const sessionRef = ref(db, 'pc_sessions/' + sessionId);
-            set(sessionRef, {
-                sessionId: sessionId,
-                status: 'waiting',
-                createdAt: new Date().toISOString(),
-                deviceInfo: navigator.userAgent
+            new QRCode(qrDiv, { 
+                text: 'elgoharyX_session:' + sessionId, 
+                width: 220, 
+                height: 220,
+                colorDark: "#000000",
+                colorLight: "#ffffff"
             });
             
-            onDisconnect(sessionRef).remove();
+            currentSessionRef = ref(db, 'pc_sessions/' + sessionId);
+            set(currentSessionRef, {
+                sessionId,
+                status: 'waiting',
+                createdAt: Date.now()
+            });
+            
+            onDisconnect(currentSessionRef).remove();
+            
+            if (sessionCheckInterval) clearInterval(sessionCheckInterval);
             
             sessionCheckInterval = setInterval(async () => {
                 try {
-                    const snap = await get(sessionRef);
-                    if (snap.exists()) {
-                        const data = snap.val();
-                        if (data.status === 'approved' && data.userId) {
-                            clearInterval(sessionCheckInterval);
-                            document.getElementById('pcWaitingStatus').textContent = '✅ تم الربط! جاري تسجيل الدخول...';
-                            
-                            const userSnap = await get(ref(db, 'users/' + data.userId));
-                            if (userSnap.exists()) {
-                                const userData = userSnap.val();
-                                currentUser = {
-                                    id: userData.id,
-                                    name: userData.name,
-                                    email: userData.email,
-                                    avatar: userData.avatar || LOGO_URL
-                                };
-                                localStorage.setItem('elgoharyX_user', JSON.stringify(currentUser));
-                                
-                                await remove(sessionRef);
-                                
-                                showMainScreen();
-                            }
-                        }
-                    } else {
+                    const snap = await get(currentSessionRef);
+                    if (!snap.exists()) {
                         clearInterval(sessionCheckInterval);
-                        document.getElementById('pcWaitingStatus').textContent = '❌ انتهت صلاحية الجلسة';
+                        document.getElementById('pcWaitingStatus').innerHTML = '<i class="fas fa-times-circle"></i> انتهت الجلسة';
+                        return;
                     }
-                } catch (e) {
-                    console.error(e);
-                }
+                    
+                    const data = snap.val();
+                    if (data.status === 'approved' && data.userId) {
+                        clearInterval(sessionCheckInterval);
+                        document.getElementById('pcWaitingStatus').innerHTML = '<i class="fas fa-check-circle"></i> تم الربط!';
+                        
+                        const userSnap = await get(ref(db, 'users/' + data.userId));
+                        if (userSnap.exists()) {
+                            const userData = userSnap.val();
+                            currentUser = {
+                                id: userData.id,
+                                name: userData.name,
+                                email: userData.email,
+                                avatar: userData.avatar || LOGO_URL
+                            };
+                            localStorage.setItem('user', JSON.stringify(currentUser));
+                            await remove(currentSessionRef);
+                            showMainScreen();
+                        }
+                    }
+                } catch (e) {}
             }, 2000);
         }
 
-        // تسجيل خروج
+        window.refreshPCSession = function() {
+            if (currentSessionRef) {
+                remove(currentSessionRef);
+            }
+            if (sessionCheckInterval) {
+                clearInterval(sessionCheckInterval);
+            }
+            startPCSession();
+        };
+
         window.logout = function() {
             currentUser = null;
-            localStorage.removeItem('elgoharyX_user');
+            localStorage.removeItem('user');
             toggleSidebar();
+            
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('linkDeviceScreen').classList.add('hidden');
+            document.getElementById('redirectScreen').classList.add('hidden');
             
             if (isPC) {
                 document.getElementById('pcAuthContent').classList.remove('hidden');
                 document.getElementById('mobileAuthContent').classList.add('hidden');
-                startPCSession();
+                document.getElementById('authScreen').classList.remove('hidden');
+                refreshPCSession();
             } else {
                 document.getElementById('authScreen').classList.remove('hidden');
             }
             
-            document.getElementById('mainScreen').classList.add('hidden');
-            document.getElementById('linkDeviceScreen').classList.add('hidden');
-            showToast('تم تسجيل الخروج');
+            showToast('👋 تم تسجيل الخروج');
         };
 
         function showMainScreen() {
             document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('linkDeviceScreen').classList.add('hidden');
+            document.getElementById('redirectScreen').classList.add('hidden');
             document.getElementById('mainScreen').classList.remove('hidden');
+            
             document.getElementById('displayName').textContent = currentUser.name;
             document.getElementById('displayEmail').textContent = currentUser.email;
             document.getElementById('sidebarName').textContent = currentUser.name;
             document.getElementById('sidebarEmail').textContent = currentUser.email;
+            document.getElementById('sidebarAvatar').src = currentUser.avatar || LOGO_URL;
             
-            const avatarImg = document.getElementById('sidebarAvatar');
-            if (avatarImg) {
-                avatarImg.src = currentUser.avatar || LOGO_URL;
-            }
-            
+            loadDevices();
             loadLinks();
         }
 
         function loadLinks() {
-            if (!currentUser || !db) return;
-
+            if (!currentUser) return;
+            
             const linksRef = ref(db, 'user_links/' + currentUser.id);
             onValue(linksRef, (snapshot) => {
                 document.getElementById('sidebarLoading').style.display = 'none';
@@ -658,26 +1587,40 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     const slugs = Object.keys(data);
+                    
                     if (slugs.length === 0) {
                         document.getElementById('emptyState').classList.remove('hidden');
                         return;
                     }
+                    
                     document.getElementById('emptyState').classList.add('hidden');
-
-                    slugs.forEach(slug => {
+                    
+                    slugs.forEach((slug, index) => {
                         const item = data[slug];
                         const div = document.createElement('div');
                         div.className = 'link-item';
+                        div.style.animationDelay = (index * 0.05) + 's';
                         div.innerHTML = `
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                <span style="width: 24px; height: 24px; background: rgba(0,122,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #007AFF;">🔗</span>
+                                <div class="link-icon">
+                                    <i class="fas fa-link"></i>
+                                </div>
                                 <span class="dir-ltr" style="font-weight: 600;">${slug}</span>
                             </div>
-                            <div class="dir-ltr" style="font-size: 13px; color: #8E8E93; margin-bottom: 12px;">${item.target}</div>
+                            <div class="dir-ltr" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">${item.target}</div>
                             <div class="link-actions">
-                                <div class="link-btn btn-copy" onclick="copySidebarLink('${slug}')">نسخ</div>
-                                <div class="link-btn btn-edit" onclick="editLink('${slug}', '${item.target}')">تعديل</div>
-                                <div class="link-btn btn-delete" onclick="deleteLink('${slug}')">حذف</div>
+                                <div class="link-btn btn-copy" onclick="copySidebarLink('${slug}')">
+                                    <i class="far fa-copy"></i>
+                                    نسخ
+                                </div>
+                                <div class="link-btn btn-edit" onclick="editLink('${slug}', '${item.target}')">
+                                    <i class="far fa-edit"></i>
+                                    تعديل
+                                </div>
+                                <div class="link-btn btn-delete" onclick="deleteLink('${slug}')">
+                                    <i class="far fa-trash-alt"></i>
+                                    حذف
+                                </div>
                             </div>
                         `;
                         listDiv.appendChild(div);
@@ -685,35 +1628,32 @@
                 } else {
                     document.getElementById('emptyState').classList.remove('hidden');
                 }
-            }, (e) => {
-                console.error(e);
-                document.getElementById('sidebarLoading').style.display = 'none';
-                document.getElementById('emptyState').classList.remove('hidden');
             });
         }
 
         window.copySidebarLink = function(slug) {
             const url = `${location.origin}${location.pathname}?${slug}`;
-            navigator.clipboard?.writeText(url).then(() => showToast('تم النسخ'));
+            navigator.clipboard?.writeText(url).then(() => showToast('📋 تم النسخ'));
         };
 
         window.deleteLink = async function(slug) {
-            if (!confirm('حذف؟')) return;
+            if (!confirm('هل أنت متأكد من حذف الرابط؟')) return;
+            
             try {
                 await remove(ref(db, 'links/' + slug));
                 await remove(ref(db, 'user_links/' + currentUser.id + '/' + slug));
-                showToast('تم الحذف');
-            } catch (e) { showToast('فشل'); }
+                showToast('🗑️ تم الحذف');
+            } catch (e) { showToast('فشل الحذف'); }
         };
 
-        window.editLink = async function(slug, old) {
-            const newUrl = prompt('الرابط الجديد:', old);
-            if (!newUrl || newUrl === old) return;
+        window.editLink = async function(slug, oldUrl) {
+            const newUrl = prompt('الرابط الجديد:', oldUrl);
+            if (!newUrl || newUrl === oldUrl) return;
             try {
                 await update(ref(db, 'links/' + slug), { target: newUrl });
                 await update(ref(db, 'user_links/' + currentUser.id + '/' + slug), { target: newUrl });
-                showToast('تم التحديث');
-            } catch (e) { showToast('فشل'); }
+                showToast('✏️ تم التحديث');
+            } catch (e) { showToast('فشل التحديث'); }
         };
 
         window.toggleSidebar = function() {
@@ -723,49 +1663,70 @@
 
         window.copyLink = function() {
             const link = document.getElementById('shortLink').innerText;
-            if (link) navigator.clipboard?.writeText(link).then(() => showToast('تم النسخ'));
+            navigator.clipboard?.writeText(link).then(() => showToast('📋 تم النسخ'));
         };
 
         window.createLink = async function() {
-            if (!currentUser) { showToast('سجل الدخول'); return; }
-            if (!db) { showToast('قاعدة البيانات غير متصلة'); return; }
+            if (!currentUser) { showToast('سجل الدخول أولاً'); return; }
 
             const longUrl = document.getElementById('longUrl').value.trim();
-            const customSlug = document.getElementById('customSlug').value.trim();
-            if (!longUrl) { showToast('أدخل رابطاً'); return; }
+            let customSlug = document.getElementById('customSlug').value.trim();
+            
+            if (!longUrl) { showToast('أدخل الرابط'); return; }
 
             const btn = document.getElementById('shortenBtn');
             btn.disabled = true;
-            btn.textContent = 'جاري الإنشاء...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
 
             try {
-                let slug = customSlug || Math.random().toString(36).substring(2, 8);
-                if (customSlug) {
-                    const snap = await get(ref(db, 'links/' + slug));
-                    if (snap.exists()) { showToast('المعرف مستخدم'); btn.disabled = false; btn.textContent = 'إنشاء رابط مختصر'; return; }
+                if (!customSlug) {
+                    customSlug = Math.random().toString(36).substring(2, 8);
+                }
+                
+                const slugSnap = await get(ref(db, 'links/' + customSlug));
+                if (slugSnap.exists() && customSlug) {
+                    showToast('المعرف مستخدم، اختر معرفاً آخر');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-scissors"></i> إنشاء رابط مختصر';
+                    return;
                 }
 
-                const data = { target: longUrl, created_at: new Date().toISOString(), created_by: currentUser.id };
-                await set(ref(db, 'links/' + slug), data);
-                await set(ref(db, 'user_links/' + currentUser.id + '/' + slug), { target: longUrl, created_at: new Date().toISOString() });
+                const data = { 
+                    target: longUrl, 
+                    created_at: new Date().toISOString(), 
+                    created_by: currentUser.id 
+                };
+                
+                await set(ref(db, 'links/' + customSlug), data);
+                await set(ref(db, 'user_links/' + currentUser.id + '/' + customSlug), { 
+                    target: longUrl, 
+                    created_at: new Date().toISOString() 
+                });
 
-                const shortUrl = `${location.origin}${location.pathname}?${slug}`;
+                const shortUrl = `${location.origin}${location.pathname}?${customSlug}`;
                 document.getElementById('shortLink').innerText = shortUrl;
                 document.getElementById('shortLink').href = shortUrl;
-                document.getElementById('resultArea').classList.remove('hidden');
+                
+                const resultArea = document.getElementById('resultArea');
+                resultArea.classList.remove('hidden');
 
                 document.getElementById('qrcode').innerHTML = '';
-                new QRCode(document.getElementById('qrcode'), { text: shortUrl, width: 150, height: 150 });
+                new QRCode(document.getElementById('qrcode'), { 
+                    text: shortUrl, 
+                    width: 160, 
+                    height: 160,
+                    colorDark: document.body.classList.contains('dark-mode') ? "#FFFFFF" : "#000000",
+                    colorLight: document.body.classList.contains('dark-mode') ? "#1C1C1E" : "#FFFFFF"
+                });
 
                 document.getElementById('longUrl').value = '';
                 document.getElementById('customSlug').value = '';
-                showToast('تم الإنشاء');
+                showToast('✅ تم إنشاء الرابط');
             } catch (e) {
-                console.error(e);
                 showToast('خطأ: ' + e.message);
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'إنشاء رابط مختصر';
+                btn.innerHTML = '<i class="fas fa-scissors"></i> إنشاء رابط مختصر';
             }
         };
 
@@ -773,26 +1734,21 @@
             const canvas = document.querySelector('#qrcode canvas');
             if (canvas) {
                 const a = document.createElement('a');
-                a.download = 'qr.png';
+                a.download = 'elgoharyX-qr.png';
                 a.href = canvas.toDataURL();
                 a.click();
+                showToast('📸 تم حفظ QR');
             }
         };
 
-        // التوجيه
         async function redirect() {
             const slug = location.search.substring(1).split('&')[0];
             if (!slug) return;
 
             document.getElementById('authScreen')?.classList.add('hidden');
             document.getElementById('mainScreen')?.classList.add('hidden');
+            document.getElementById('linkDeviceScreen')?.classList.add('hidden');
             document.getElementById('redirectScreen')?.classList.remove('hidden');
-
-            if (!db) {
-                document.getElementById('redirectStatus').textContent = 'خطأ في الاتصال';
-                setTimeout(() => location.href = location.origin + location.pathname, 2000);
-                return;
-            }
 
             try {
                 const snap = await get(ref(db, 'links/' + slug));
@@ -809,45 +1765,54 @@
             }
         }
 
-        // التهيئة
         window.addEventListener('DOMContentLoaded', () => {
-            if (location.search.length > 1) { redirect(); return; }
-
-            isPC = detectPC();
-            const container = document.getElementById('mainContainer');
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').innerHTML = '<i class="fas fa-sun"></i>';
+                document.getElementById('themeLabel').textContent = 'الوضع النهاري';
+                document.getElementById('themeToggleIcon').innerHTML = '<i class="fas fa-sun"></i>';
+                document.getElementById('themeToggleLabel').textContent = 'الوضع النهاري';
+            }
             
-            if (isPC) {
-                container.classList.add('container-pc');
-                document.getElementById('pcAuthContent').classList.remove('hidden');
-                document.getElementById('mobileAuthContent').classList.add('hidden');
-                startPCSession();
-            } else {
-                container.classList.remove('container-pc');
-                document.getElementById('pcAuthContent').classList.add('hidden');
-                document.getElementById('mobileAuthContent').classList.remove('hidden');
+            if (location.search.length > 1) { 
+                redirect(); 
+                return;
             }
 
-            const saved = localStorage.getItem('elgoharyX_user');
+            isPC = detectPC();
+            
+            if (isPC) {
+                document.getElementById('mainContainer').classList.add('container-pc');
+                document.getElementById('pcAuthContent').classList.remove('hidden');
+                document.getElementById('mobileAuthContent').classList.add('hidden');
+                document.getElementById('linkDeviceMenuItem').classList.add('hidden');
+                startPCSession();
+            } else {
+                document.getElementById('pcAuthContent').classList.add('hidden');
+                document.getElementById('mobileAuthContent').classList.remove('hidden');
+                document.getElementById('linkDeviceMenuItem').classList.remove('hidden');
+            }
+
+            const saved = localStorage.getItem('user');
             if (saved) {
                 try {
                     currentUser = JSON.parse(saved);
-                    if (!currentUser.avatar) {
-                        currentUser.avatar = LOGO_URL;
-                    }
+                    if (!currentUser.avatar) currentUser.avatar = LOGO_URL;
                     showMainScreen();
                 } catch (e) { 
-                    localStorage.removeItem('elgoharyX_user'); 
+                    localStorage.removeItem('user'); 
                 }
             }
+            
+            document.getElementById('redirectScreen').classList.add('hidden');
         });
 
-        // تنظيف عند إغلاق الصفحة
         window.addEventListener('beforeunload', () => {
-            if (sessionCheckInterval) {
-                clearInterval(sessionCheckInterval);
-            }
-            if (html5QrCode) {
-                html5QrCode.stop().catch(() => {});
+            if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+            const video = document.getElementById('qrVideo');
+            if (video?.srcObject) {
+                video.srcObject.getTracks().forEach(t => t.stop());
             }
         });
     </script>
