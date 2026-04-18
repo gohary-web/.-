@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png">
-    <title>elgoharyX · روابط</title>
+    <title>elgoharyX · روابط ومواقع</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -309,7 +309,7 @@
             object-fit: cover;
         }
         
-        .link-item, .device-item { 
+        .link-item, .device-item, .site-item { 
             background: var(--bg-tertiary); 
             border-radius: 14px; 
             padding: 16px; 
@@ -326,7 +326,7 @@
             gap: 12px;
         }
         
-        .device-icon {
+        .device-icon, .site-icon {
             width: 48px;
             height: 48px;
             border-radius: 12px;
@@ -338,17 +338,17 @@
             font-size: 24px;
         }
         
-        .device-info {
+        .device-info, .site-info {
             flex: 1;
         }
         
-        .device-name {
+        .device-name, .site-name {
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 4px;
         }
         
-        .device-details {
+        .device-details, .site-details {
             font-size: 12px;
             color: var(--text-secondary);
             display: flex;
@@ -357,7 +357,7 @@
             flex-wrap: wrap;
         }
         
-        .device-badge {
+        .device-badge, .site-badge {
             background: var(--blue);
             color: white;
             font-size: 10px;
@@ -370,12 +370,12 @@
             background: var(--green);
         }
         
-        .device-actions {
+        .device-actions, .site-actions {
             display: flex;
             gap: 4px;
         }
         
-        .device-action-btn {
+        .device-action-btn, .site-action-btn {
             width: 36px;
             height: 36px;
             border-radius: 10px;
@@ -388,17 +388,21 @@
             background: transparent;
         }
         
-        .device-action-btn:hover {
+        .device-action-btn:hover, .site-action-btn:hover {
             background: var(--border-color);
             transform: scale(1.1);
         }
         
-        .device-action-btn.edit:hover {
+        .device-action-btn.edit:hover, .site-action-btn.copy:hover {
             color: var(--blue);
         }
         
-        .device-action-btn.delete:hover {
+        .device-action-btn.delete:hover, .site-action-btn.delete:hover {
             color: var(--red);
+        }
+        
+        .site-action-btn.open:hover {
+            color: var(--green);
         }
         
         .link-actions { 
@@ -537,7 +541,7 @@
             font-size: 14px;
         }
         
-        .link-icon {
+        .link-icon, .site-icon-small {
             width: 36px;
             height: 36px;
             border-radius: 10px;
@@ -626,6 +630,39 @@
             height: 1px;
             background: var(--border-color);
             margin: 20px 0;
+        }
+
+        /* Code Editor Styles */
+        .code-editor {
+            background: #1e1e1e;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 0.5px solid var(--border-color);
+        }
+        
+        .code-editor textarea {
+            width: 100%;
+            min-height: 400px;
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        .preview-frame {
+            width: 100%;
+            height: 200px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background: white;
+            margin-top: 16px;
         }
     </style>
 </head>
@@ -742,6 +779,107 @@
             </div>
         </div>
 
+        <!-- شاشة رفع الكود -->
+        <div id="codeHostingScreen" class="hidden">
+            <div class="nav-bar">
+                <div onclick="hideCodeHosting()" style="color: var(--blue); font-size: 20px; cursor: pointer;">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">رفع موقع</div>
+                <div></div>
+            </div>
+            <div style="padding: 16px;">
+                <div class="card">
+                    <div class="input-group">
+                        <div class="input-label">اسم المشروع</div>
+                        <input type="text" id="projectName" class="input-field" placeholder="مشروعي الأول">
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-label">رابط مخصص (اختياري)</div>
+                        <input type="text" id="customSiteSlug" class="input-field dir-ltr" placeholder="my-site">
+                    </div>
+                    
+                    <div class="code-editor">
+                        <textarea id="htmlCode" placeholder="أكتب كود HTML/CSS/JavaScript هنا..."><!DOCTYPE html>
+<html>
+<head>
+    <title>موقعي</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+            padding: 20px; 
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        p { color: #666; line-height: 1.6; }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🚀 مرحباً بالعالم!</h1>
+        <p>تم إنشاء هذا الموقع باستخدام elgoharyX</p>
+        <button class="btn" onclick="alert('مرحباً بك!')">اضغط هنا</button>
+    </div>
+</body>
+</html></textarea>
+                    </div>
+                    
+                    <button class="btn" onclick="deploySite()" id="deployBtn">
+                        <i class="fas fa-rocket"></i>
+                        رفع ونشر
+                    </button>
+                </div>
+                
+                <div id="deployResult" class="hidden">
+                    <div class="card">
+                        <div style="margin-bottom: 16px;">
+                            <div class="input-label">تم رفع الموقع بنجاح!</div>
+                            <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+                                <a id="siteUrl" href="#" target="_blank" class="dir-ltr" style="color: var(--blue); text-decoration: none; flex: 1; word-break: break-all;"></a>
+                                <span onclick="copySiteUrl()" style="color: var(--blue); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                    <i class="far fa-copy"></i>
+                                    نسخ
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 16px;">
+                            <button class="btn btn-outline" onclick="openSiteInNewTab()">
+                                <i class="fas fa-external-link-alt"></i>
+                                فتح الموقع
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- الشاشة الرئيسية -->
         <div id="mainScreen" class="hidden">
             <div class="nav-bar">
@@ -838,6 +976,12 @@
                 <span class="arrow"><i class="fas fa-chevron-left"></i></span>
             </div>
             
+            <div class="sidebar-menu-item" onclick="showCodeHosting()">
+                <span class="icon"><i class="fas fa-code"></i></span>
+                <span class="label">رفع موقع</span>
+                <span class="arrow"><i class="fas fa-chevron-left"></i></span>
+            </div>
+            
             <div class="sidebar-menu-item" onclick="toggleTheme()">
                 <span class="icon" id="themeIcon"><i class="fas fa-moon"></i></span>
                 <span class="label" id="themeLabel">الوضع الليلي</span>
@@ -863,6 +1007,21 @@
             <div id="devicesEmptyState" class="hidden" style="text-align: center; padding: 20px; color: var(--text-secondary);">
                 <i class="fas fa-laptop" style="font-size: 32px; margin-bottom: 8px; opacity: 0.3;"></i>
                 <p style="font-size: 14px;">لا توجد أجهزة مرتبطة</p>
+            </div>
+            
+            <div class="section-divider"></div>
+            
+            <!-- قسم المواقع -->
+            <div class="section-title">
+                <i class="fas fa-globe" style="color: var(--blue);"></i>
+                مواقعي
+            </div>
+            
+            <div id="sitesLoading"><div class="loader"></div></div>
+            <div id="sitesList"></div>
+            <div id="sitesEmptyState" class="hidden" style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                <i class="fas fa-globe" style="font-size: 32px; margin-bottom: 8px; opacity: 0.3;"></i>
+                <p style="font-size: 14px;">لا توجد مواقع مرفوعة</p>
             </div>
             
             <div class="section-divider"></div>
@@ -936,6 +1095,7 @@
         let currentSessionRef = null;
         let currentDeviceId = null;
         let editingDeviceId = null;
+        let currentSiteUrl = '';
 
         try {
             app = initializeApp(firebaseConfig);
@@ -994,7 +1154,7 @@
             return names[deviceType] || 'جهاز';
         }
 
-        function getLocationFromIP() {
+        async function getLocationFromIP() {
             return new Promise((resolve) => {
                 fetch('https://ipapi.co/json/')
                     .then(res => res.json())
@@ -1027,7 +1187,6 @@
             
             await set(deviceRef, deviceData);
             
-            // تحديث آخر نشاط كل دقيقة
             setInterval(async () => {
                 if (currentUser) {
                     await update(ref(db, `users/${currentUser.id}/devices/${deviceId}`), {
@@ -1198,6 +1357,245 @@
             document.getElementById('mainScreen').classList.remove('hidden');
         };
 
+        // وظائف رفع الكود
+        window.showCodeHosting = function() {
+            toggleSidebar();
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('codeHostingScreen').classList.remove('hidden');
+            document.getElementById('deployResult').classList.add('hidden');
+        };
+
+        window.hideCodeHosting = function() {
+            document.getElementById('codeHostingScreen').classList.add('hidden');
+            document.getElementById('mainScreen').classList.remove('hidden');
+        };
+
+        window.deploySite = async function() {
+            if (!currentUser) {
+                showToast('يجب تسجيل الدخول أولاً');
+                return;
+            }
+
+            const projectName = document.getElementById('projectName').value.trim();
+            let customSlug = document.getElementById('customSiteSlug').value.trim().toLowerCase();
+            const htmlCode = document.getElementById('htmlCode').value;
+
+            if (!projectName) {
+                showToast('أدخل اسم المشروع');
+                return;
+            }
+
+            if (!htmlCode) {
+                showToast('أدخل كود HTML');
+                return;
+            }
+
+            const btn = document.getElementById('deployBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
+
+            try {
+                // التحقق من الرابط المخصص
+                if (customSlug) {
+                    // تنظيف الرابط المخصص
+                    customSlug = customSlug.replace(/[^a-z0-9-_]/g, '');
+                    
+                    if (customSlug.length < 3) {
+                        showToast('الرابط المخصص يجب أن يكون 3 أحرف على الأقل');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-rocket"></i> رفع ونشر';
+                        return;
+                    }
+                    
+                    // التحقق من عدم وجود رابط بنفس الاسم
+                    const slugSnap = await get(ref(db, 'hosted_sites_slugs/' + customSlug));
+                    if (slugSnap.exists()) {
+                        showToast('الرابط المخصص مستخدم، اختر رابطاً آخر');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-rocket"></i> رفع ونشر';
+                        return;
+                    }
+                } else {
+                    // إنشاء رابط تلقائي
+                    customSlug = 'site_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4);
+                }
+
+                const projectId = 'site_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                
+                // حفظ المشروع في قاعدة البيانات
+                const siteData = {
+                    id: projectId,
+                    name: projectName,
+                    slug: customSlug,
+                    code: htmlCode,
+                    created_at: new Date().toISOString(),
+                    created_by: currentUser.id,
+                    created_by_name: currentUser.name
+                };
+
+                await set(ref(db, 'hosted_sites/' + projectId), siteData);
+                await set(ref(db, 'hosted_sites_slugs/' + customSlug), projectId);
+                
+                // حفظ في قائمة مشاريع المستخدم
+                await set(ref(db, 'user_sites/' + currentUser.id + '/' + projectId), {
+                    name: projectName,
+                    slug: customSlug,
+                    created_at: new Date().toISOString()
+                });
+
+                // إنشاء رابط الموقع
+                const siteUrl = `${location.origin}${location.pathname}?site=${customSlug}`;
+                currentSiteUrl = siteUrl;
+                
+                // عرض النتيجة
+                document.getElementById('siteUrl').textContent = siteUrl;
+                document.getElementById('siteUrl').href = siteUrl;
+                
+                document.getElementById('deployResult').classList.remove('hidden');
+                
+                // إعادة تعيين الحقول
+                document.getElementById('projectName').value = '';
+                document.getElementById('customSiteSlug').value = '';
+                
+                showToast('✅ تم رفع الموقع بنجاح!');
+                
+                // تحديث قائمة المواقع
+                loadSites();
+            } catch (e) {
+                showToast('خطأ في الرفع: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-rocket"></i> رفع ونشر';
+            }
+        };
+
+        window.copySiteUrl = function() {
+            const url = document.getElementById('siteUrl').textContent;
+            navigator.clipboard?.writeText(url).then(() => showToast('📋 تم نسخ الرابط'));
+        };
+
+        window.openSiteInNewTab = function() {
+            window.open(currentSiteUrl, '_blank');
+        };
+
+        // تحميل قائمة المواقع
+        function loadSites() {
+            if (!currentUser) return;
+            
+            const sitesRef = ref(db, 'user_sites/' + currentUser.id);
+            onValue(sitesRef, (snapshot) => {
+                document.getElementById('sitesLoading').style.display = 'none';
+                const listDiv = document.getElementById('sitesList');
+                listDiv.innerHTML = '';
+
+                if (snapshot.exists()) {
+                    const sites = snapshot.val();
+                    const siteIds = Object.keys(sites);
+                    
+                    if (siteIds.length === 0) {
+                        document.getElementById('sitesEmptyState').classList.remove('hidden');
+                        return;
+                    }
+                    
+                    document.getElementById('sitesEmptyState').classList.add('hidden');
+                    
+                    siteIds.forEach((siteId, index) => {
+                        const site = sites[siteId];
+                        const siteUrl = `${location.origin}${location.pathname}?site=${site.slug}`;
+                        const createdAt = new Date(site.created_at).toLocaleDateString('ar-EG');
+                        
+                        const div = document.createElement('div');
+                        div.className = 'site-item';
+                        div.style.animationDelay = (index * 0.05) + 's';
+                        div.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="site-icon">
+                                    <i class="fas fa-globe"></i>
+                                </div>
+                                <div class="site-info">
+                                    <div class="site-name">${site.name}</div>
+                                    <div class="site-details">
+                                        <span class="dir-ltr" style="font-family: monospace;">/${site.slug}</span>
+                                        <span><i class="far fa-calendar"></i> ${createdAt}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="site-actions" style="margin-top: 12px; justify-content: flex-end;">
+                                <div class="site-action-btn copy" onclick="copySiteUrlFromList('${site.slug}')" title="نسخ الرابط">
+                                    <i class="far fa-copy"></i>
+                                </div>
+                                <div class="site-action-btn open" onclick="openSiteFromList('${site.slug}')" title="فتح الموقع">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </div>
+                                <div class="site-action-btn delete" onclick="deleteSite('${siteId}', '${site.slug}')" title="حذف">
+                                    <i class="far fa-trash-alt"></i>
+                                </div>
+                            </div>
+                        `;
+                        listDiv.appendChild(div);
+                    });
+                } else {
+                    document.getElementById('sitesEmptyState').classList.remove('hidden');
+                }
+            });
+        }
+
+        window.copySiteUrlFromList = function(slug) {
+            const url = `${location.origin}${location.pathname}?site=${slug}`;
+            navigator.clipboard?.writeText(url).then(() => showToast('📋 تم نسخ الرابط'));
+        };
+
+        window.openSiteFromList = function(slug) {
+            window.open(`${location.origin}${location.pathname}?site=${slug}`, '_blank');
+        };
+
+        window.deleteSite = async function(siteId, slug) {
+            if (!confirm('هل أنت متأكد من حذف هذا الموقع؟')) return;
+            
+            try {
+                await remove(ref(db, 'hosted_sites/' + siteId));
+                await remove(ref(db, 'hosted_sites_slugs/' + slug));
+                await remove(ref(db, 'user_sites/' + currentUser.id + '/' + siteId));
+                showToast('🗑️ تم حذف الموقع');
+            } catch (e) {
+                showToast('فشل الحذف');
+            }
+        };
+
+        // عرض الموقع
+        async function viewSite(slug) {
+            document.getElementById('authScreen')?.classList.add('hidden');
+            document.getElementById('mainScreen')?.classList.add('hidden');
+            document.getElementById('codeHostingScreen')?.classList.add('hidden');
+            document.getElementById('redirectScreen')?.classList.remove('hidden');
+            
+            try {
+                // الحصول على projectId من slug
+                const slugSnap = await get(ref(db, 'hosted_sites_slugs/' + slug));
+                if (!slugSnap.exists()) {
+                    document.getElementById('redirectStatus').textContent = 'الموقع غير موجود';
+                    setTimeout(() => location.href = location.origin + location.pathname, 2000);
+                    return;
+                }
+                
+                const projectId = slugSnap.val();
+                const snap = await get(ref(db, 'hosted_sites/' + projectId));
+                
+                if (snap.exists()) {
+                    const siteData = snap.val();
+                    // عرض الموقع مباشرة
+                    document.write(siteData.code);
+                    document.close();
+                } else {
+                    document.getElementById('redirectStatus').textContent = 'الموقع غير موجود';
+                    setTimeout(() => location.href = location.origin + location.pathname, 2000);
+                }
+            } catch (e) {
+                document.getElementById('redirectStatus').textContent = 'خطأ في تحميل الموقع';
+                setTimeout(() => location.href = location.origin + location.pathname, 2000);
+            }
+        }
+
         // إدارة الأجهزة
         function loadDevices() {
             if (!currentUser) return;
@@ -1305,7 +1703,7 @@
             }
         };
 
-        // باقي الدوال بدون تغيير...
+        // QR Scanner functions
         window.startQRScanner = async function() {
             const scannerDiv = document.getElementById('qrScanner');
             const video = document.getElementById('qrVideo');
@@ -1545,6 +1943,7 @@
             document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('mainScreen').classList.add('hidden');
             document.getElementById('linkDeviceScreen').classList.add('hidden');
+            document.getElementById('codeHostingScreen').classList.add('hidden');
             document.getElementById('redirectScreen').classList.add('hidden');
             
             if (isPC) {
@@ -1562,6 +1961,7 @@
         function showMainScreen() {
             document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('linkDeviceScreen').classList.add('hidden');
+            document.getElementById('codeHostingScreen').classList.add('hidden');
             document.getElementById('redirectScreen').classList.add('hidden');
             document.getElementById('mainScreen').classList.remove('hidden');
             
@@ -1572,6 +1972,7 @@
             document.getElementById('sidebarAvatar').src = currentUser.avatar || LOGO_URL;
             
             loadDevices();
+            loadSites();
             loadLinks();
         }
 
@@ -1742,12 +2143,23 @@
         };
 
         async function redirect() {
-            const slug = location.search.substring(1).split('&')[0];
+            const params = new URLSearchParams(location.search);
+            const slug = Array.from(params.keys())[0];
+            const siteSlug = params.get('site');
+            
+            // التحقق مما إذا كان الطلب لعرض موقع
+            if (location.search.includes('?site=') || siteSlug) {
+                const actualSiteSlug = siteSlug || location.search.substring(6);
+                await viewSite(actualSiteSlug);
+                return;
+            }
+            
             if (!slug) return;
 
             document.getElementById('authScreen')?.classList.add('hidden');
             document.getElementById('mainScreen')?.classList.add('hidden');
             document.getElementById('linkDeviceScreen')?.classList.add('hidden');
+            document.getElementById('codeHostingScreen')?.classList.add('hidden');
             document.getElementById('redirectScreen')?.classList.remove('hidden');
 
             try {
