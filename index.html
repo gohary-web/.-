@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -132,10 +131,6 @@
             backdrop-filter: blur(10px);
             border: 0.5px solid var(--border-color);
         }
-        
-        .card:nth-child(1) { --card-index: 1; }
-        .card:nth-child(2) { --card-index: 2; }
-        .card:nth-child(3) { --card-index: 3; }
         
         .input-group { 
             background: var(--bg-tertiary); 
@@ -310,7 +305,7 @@
             object-fit: cover;
         }
         
-        .link-item, .device-item, .site-item, .post-item, .browser-item { 
+        .link-item, .device-item, .site-item, .post-item, .browser-item, .contact-item { 
             background: var(--bg-tertiary); 
             border-radius: 14px; 
             padding: 16px; 
@@ -319,6 +314,18 @@
             animation: slideInFromRight 0.4s var(--transition-smooth) forwards;
             opacity: 0;
             border: 0.5px solid transparent;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .contact-item:hover {
+            background: var(--bg-secondary);
+            border-color: var(--blue);
+            transform: translateY(-2px);
         }
 
         .browser-item {
@@ -571,26 +578,34 @@
             gap: 12px;
         }
         
-        .device-icon, .site-icon {
+        .device-icon, .site-icon, .contact-icon {
             width: 48px;
             height: 48px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, rgba(0,122,255,0.15), rgba(0,122,255,0.05));
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--blue);
-            font-size: 24px;
+            color: white;
+            font-size: 20px;
         }
         
-        .device-info, .site-info {
+        .device-info, .site-info, .contact-info {
             flex: 1;
         }
         
-        .device-name, .site-name, .post-author {
+        .device-name, .site-name, .post-author, .contact-name {
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 4px;
+        }
+        
+        .contact-phone {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: monospace;
+            direction: ltr;
+            text-align: left;
         }
         
         .device-details, .site-details, .post-time {
@@ -1193,6 +1208,94 @@
             font-size: 10px;
             color: var(--text-secondary);
         }
+        .conversation-unread {
+            width: 10px;
+            height: 10px;
+            background: var(--blue);
+            border-radius: 50%;
+        }
+        .user-action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .user-action-btn {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        /* Grid layout for main cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding: 16px;
+        }
+        .main-card {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 20px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s var(--transition-spring);
+            border: 0.5px solid var(--border-color);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        .main-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--blue);
+            box-shadow: 0 8px 20px var(--shadow);
+        }
+        .main-card-icon {
+            font-size: 40px;
+            color: var(--blue);
+            margin-bottom: 12px;
+        }
+        .main-card-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .main-card-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* Shorten link card inside grid */
+        .shorten-card {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+        }
+        .shorten-card .main-card-icon {
+            color: white;
+        }
+        .shorten-card .main-card-title {
+            color: white;
+        }
+        .shorten-card .main-card-desc {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .profile-section {
+            padding: 20px 16px 0;
+            text-align: center;
+        }
+        .profile-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 8px;
+        }
+        .profile-email {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -1237,6 +1340,10 @@
                             <div class="input-group">
                                 <div class="input-label">كلمة المرور</div>
                                 <input type="password" id="signupPassword" class="input-field dir-ltr" placeholder="••••••••">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-label">رقم الهاتف (للتواصل)</div>
+                                <input type="tel" id="signupPhone" class="input-field dir-ltr" placeholder="+966XXXXXXXXX">
                             </div>
                             <button class="btn" onclick="signup()" id="signupBtn">
                                 <i class="fas fa-user-plus"></i>
@@ -1521,6 +1628,17 @@
             </div>
         </div>
 
+        <!-- مودال تفاعل المستخدم -->
+        <div id="userActionModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-title" id="userActionTitle"></div>
+                <div id="userActionButtons" class="user-action-buttons"></div>
+                <div style="margin-top: 12px;">
+                    <button class="btn btn-outline" onclick="closeUserActionModal()">إغلاق</button>
+                </div>
+            </div>
+        </div>
+
         <!-- شاشة مولد QR -->
         <div id="qrGeneratorScreen" class="hidden">
             <div class="nav-bar">
@@ -1693,13 +1811,16 @@
             </div>
         </div>
 
-        <!-- الشاشة الرئيسية -->
+        <!-- الشاشة الرئيسية - بطاقات رئيسية -->
         <div id="mainScreen" class="hidden">
             <div class="nav-bar">
                 <div></div>
                 <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">elgoharyX</div>
                 <div style="display: flex; gap: 16px;">
                     <div onclick="openConversationsDrawer()" style="color: var(--blue); font-size: 20px; cursor: pointer; position: relative;">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div onclick="openMessagesDrawer()" style="color: var(--blue); font-size: 20px; cursor: pointer; position: relative;">
                         <i class="fas fa-envelope"></i>
                         <span id="unreadBadge" style="position: absolute; top: -8px; right: -8px; background: var(--red); color: white; font-size: 10px; border-radius: 10px; padding: 2px 6px; display: none;"></span>
                     </div>
@@ -1709,18 +1830,60 @@
                 </div>
             </div>
 
-            <div style="padding: 16px;">
-                <div class="card">
-                    <div style="position: relative;">
-                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png" class="avatar" id="profileAvatar">
-                        <div onclick="showEditProfileModal()" style="position: absolute; bottom: 0; right: 50%; transform: translateX(50%); background: var(--blue); color: white; width: 32px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--bg-secondary);">
-                            <i class="fas fa-pen" style="font-size: 12px;"></i>
-                        </div>
-                    </div>
-                    <h2 style="font-size: 22px; font-weight: 700; text-align: center; color: var(--text-primary);" id="displayName"></h2>
-                    <p style="font-size: 15px; color: var(--text-secondary); text-align: center;" id="displayEmail"></p>
-                </div>
+            <!-- الملف الشخصي المصغر -->
+            <div class="profile-section">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png" class="avatar" id="profileAvatar" style="width: 70px; height: 70px;">
+                <div class="profile-name" id="displayName"></div>
+                <div class="profile-email" id="displayEmail"></div>
+            </div>
 
+            <!-- شبكة البطاقات الرئيسية - كل صف بطاقتان -->
+            <div class="cards-grid">
+                <!-- بطاقة إنشاء رابط مختصر -->
+                <div class="main-card shorten-card" onclick="scrollToShortener()">
+                    <div class="main-card-icon"><i class="fas fa-link"></i></div>
+                    <div class="main-card-title">روابط مختصرة</div>
+                    <div class="main-card-desc">إنشاء رابط قصير</div>
+                </div>
+                
+                <!-- بطاقة المتصفح -->
+                <div class="main-card" onclick="showBrowser()">
+                    <div class="main-card-icon"><i class="fas fa-compass"></i></div>
+                    <div class="main-card-title">المتصفح</div>
+                    <div class="main-card-desc">استكشف المواقع</div>
+                </div>
+                
+                <!-- بطاقة المنتدى -->
+                <div class="main-card" onclick="showForum()">
+                    <div class="main-card-icon"><i class="fas fa-comments"></i></div>
+                    <div class="main-card-title">المنتدى</div>
+                    <div class="main-card-desc">ناقش وشارك</div>
+                </div>
+                
+                <!-- بطاقة مولد QR -->
+                <div class="main-card" onclick="showQRGenerator()">
+                    <div class="main-card-icon"><i class="fas fa-qrcode"></i></div>
+                    <div class="main-card-title">مولد QR</div>
+                    <div class="main-card-desc">إنشاء ومسح</div>
+                </div>
+                
+                <!-- بطاقة رفع موقع -->
+                <div class="main-card" onclick="showCodeHosting()">
+                    <div class="main-card-icon"><i class="fas fa-code"></i></div>
+                    <div class="main-card-title">رفع موقع</div>
+                    <div class="main-card-desc">انشر موقعك</div>
+                </div>
+                
+                <!-- بطاقة جهات الاتصال -->
+                <div class="main-card" onclick="loadContactsFromDevice()">
+                    <div class="main-card-icon"><i class="fas fa-address-book"></i></div>
+                    <div class="main-card-title">جهات الاتصال</div>
+                    <div class="main-card-desc">تواصل مع أصدقائك</div>
+                </div>
+            </div>
+            
+            <!-- أداة إنشاء الرابط المختصر (منبثقة عند النقر على البطاقة الأولى) -->
+            <div id="shortenerSection" style="padding: 0 16px 16px; display: none;">
                 <div class="card">
                     <div class="input-group">
                         <div class="input-label">
@@ -1740,10 +1903,7 @@
                         <i class="fas fa-scissors"></i>
                         إنشاء رابط مختصر
                     </button>
-                </div>
-
-                <div id="resultArea" class="hidden">
-                    <div class="card">
+                    <div id="resultArea" class="hidden" style="margin-top: 16px;">
                         <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between;">
                             <a id="shortLink" href="#" target="_blank" class="dir-ltr" style="color: var(--blue); text-decoration: none; flex: 1; word-break: break-all;"></a>
                             <span onclick="copyLink()" style="color: var(--blue); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">
@@ -1784,6 +1944,22 @@
         </div>
     </div>
 
+    <!-- قائمة الرسائل الجانبية -->
+    <div class="drawer" id="messagesDrawer">
+        <div class="nav-bar" style="position: sticky; top: 0;">
+            <div onclick="closeMessagesDrawer()" style="color: var(--blue); font-size: 20px; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </div>
+            <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">الرسائل الخاصة</div>
+            <div></div>
+        </div>
+        <div id="messagesList" style="flex: 1; overflow-y: auto;"></div>
+        <div id="messagesEmpty" class="empty-state hidden">
+            <i class="fas fa-envelope"></i>
+            <p>لا توجد رسائل خاصة</p>
+        </div>
+    </div>
+
     <!-- القائمة الجانبية الرئيسية -->
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
     <div class="sidebar" id="sidebar">
@@ -1812,30 +1988,6 @@
             <div class="sidebar-menu-item" onclick="showLinkDeviceFromSidebar()" id="linkDeviceMenuItem">
                 <span class="icon"><i class="fas fa-desktop"></i></span>
                 <span class="label">ربط جهاز كمبيوتر</span>
-                <span class="arrow"><i class="fas fa-chevron-left"></i></span>
-            </div>
-            
-            <div class="sidebar-menu-item" onclick="showBrowser()">
-                <span class="icon"><i class="fas fa-compass"></i></span>
-                <span class="label">المتصفح</span>
-                <span class="arrow"><i class="fas fa-chevron-left"></i></span>
-            </div>
-            
-            <div class="sidebar-menu-item" onclick="showForum()">
-                <span class="icon"><i class="fas fa-comments"></i></span>
-                <span class="label">المنتدى</span>
-                <span class="arrow"><i class="fas fa-chevron-left"></i></span>
-            </div>
-            
-            <div class="sidebar-menu-item" onclick="showQRGenerator()">
-                <span class="icon"><i class="fas fa-qrcode"></i></span>
-                <span class="label">مولد QR</span>
-                <span class="arrow"><i class="fas fa-chevron-left"></i></span>
-            </div>
-            
-            <div class="sidebar-menu-item" onclick="showCodeHosting()">
-                <span class="icon"><i class="fas fa-code"></i></span>
-                <span class="label">رفع موقع</span>
                 <span class="arrow"><i class="fas fa-chevron-left"></i></span>
             </div>
             
@@ -1928,6 +2080,22 @@
         </div>
     </div>
 
+    <!-- مودال جهات الاتصال -->
+    <div id="contactsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">جهات الاتصال</div>
+            <div id="contactsList"></div>
+            <div id="contactsEmpty" class="empty-state hidden">
+                <i class="fas fa-address-book"></i>
+                <p>لا توجد جهات اتصال</p>
+                <p style="font-size: 14px;">لم يتم العثور على أرقام في هاتفك</p>
+            </div>
+            <div style="margin-top: 12px;">
+                <button class="btn btn-outline" onclick="closeContactsModal()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
     <!-- كاميرا QR Scanner -->
     <div id="qrScanner">
         <div class="close-scanner" onclick="stopQRScanner()">
@@ -1947,7 +2115,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get, onValue, remove, update, onDisconnect, push, query, orderByChild, limitToLast, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, get, onValue, remove, update, onDisconnect, push, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDGhCAU7DLleD1KkCR6SQmvl8bpDncHJ8g",
@@ -1978,10 +2146,16 @@
         let currentChatUserId = null;
         let currentChatUserName = '';
         let chatMessagesListener = null;
+        let conversationsListener = null;
+        let messagesListener = null;
 
         // Dashboard variables
         let currentDashboardSiteId = null;
         let currentDashboardSiteData = null;
+        
+        // User action modal
+        let selectedUserId = null;
+        let selectedUserName = '';
 
         try {
             app = initializeApp(firebaseConfig);
@@ -2131,6 +2305,7 @@
             const name = document.getElementById('signupName').value.trim();
             const email = document.getElementById('signupEmail').value.trim().toLowerCase();
             const password = document.getElementById('signupPassword').value;
+            const phone = document.getElementById('signupPhone').value.trim();
 
             if (!name || !email || !password) { showToast('جميع الحقول مطلوبة'); return; }
             if (password.length < 6) { showToast('كلمة المرور 6 أحرف على الأقل'); return; }
@@ -2153,7 +2328,7 @@
                 const deviceId = getDeviceId();
                 const userData = {
                     id: emailKey,
-                    name, email,
+                    name, email, phone: phone || null,
                     password: btoa(password),
                     createdAt: new Date().toISOString(),
                     avatar: LOGO_URL,
@@ -2161,7 +2336,7 @@
                 };
 
                 await set(ref(db, 'users/' + emailKey), userData);
-                currentUser = { id: emailKey, name, email, avatar: LOGO_URL, deviceId };
+                currentUser = { id: emailKey, name, email, phone: phone || null, avatar: LOGO_URL, deviceId };
                 localStorage.setItem('user', JSON.stringify(currentUser));
                 
                 await registerDevice();
@@ -2216,6 +2391,7 @@
                     id: userData.id, 
                     name: userData.name, 
                     email: userData.email,
+                    phone: userData.phone || null,
                     avatar: userData.avatar || LOGO_URL,
                     deviceId: userData.deviceId
                 };
@@ -2242,10 +2418,120 @@
             document.getElementById('linkDeviceScreen').classList.add('hidden');
             document.getElementById('mainScreen').classList.remove('hidden');
         };
+        
+        window.scrollToShortener = function() {
+            const section = document.getElementById('shortenerSection');
+            if (section.style.display === 'none' || section.style.display === '') {
+                section.style.display = 'block';
+                section.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                section.style.display = 'none';
+            }
+        };
+
+        // جهات الاتصال - الوصول إلى أرقام هاتف المستخدم
+        window.loadContactsFromDevice = async function() {
+            toggleSidebar();
+            
+            if (!('contacts' in navigator)) {
+                showToast('عذراً، متصفحك لا يدعم الوصول إلى جهات الاتصال');
+                return;
+            }
+            
+            try {
+                const permissions = navigator.permissions;
+                const status = await permissions.query({ name: 'contacts' });
+                
+                if (status.state === 'denied') {
+                    showToast('الرجاء السماح بالوصول إلى جهات الاتصال من إعدادات المتصفح');
+                    return;
+                }
+                
+                const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true });
+                
+                if (!contacts || contacts.length === 0) {
+                    document.getElementById('contactsEmpty').classList.remove('hidden');
+                    document.getElementById('contactsList').innerHTML = '';
+                    document.getElementById('contactsModal').classList.add('active');
+                    return;
+                }
+                
+                const contactsList = document.getElementById('contactsList');
+                contactsList.innerHTML = '';
+                document.getElementById('contactsEmpty').classList.add('hidden');
+                
+                for (const contact of contacts) {
+                    const name = contact.name?.[0] || 'بدون اسم';
+                    const phoneNumbers = contact.tel || [];
+                    
+                    for (const phone of phoneNumbers) {
+                        const usersRef = ref(db, 'users');
+                        const snapshot = await get(usersRef);
+                        let foundUser = null;
+                        
+                        if (snapshot.exists()) {
+                            const users = snapshot.val();
+                            for (const key in users) {
+                                if (users[key].phone && users[key].phone.replace(/\s/g, '') === phone.replace(/\s/g, '')) {
+                                    foundUser = users[key];
+                                    foundUser.userId = key;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        const div = document.createElement('div');
+                        div.className = 'contact-item';
+                        div.innerHTML = `
+                            <div class="contact-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="contact-info">
+                                <div class="contact-name">${escapeHtml(name)}</div>
+                                <div class="contact-phone">${phone}</div>
+                            </div>
+                            ${foundUser ? 
+                                `<button class="btn" style="width: auto; padding: 8px 16px; background: var(--green);" onclick="startChatWithContact('${foundUser.userId}', '${escapeHtml(foundUser.name)}')">
+                                    <i class="fas fa-comment"></i> مراسلة
+                                </button>` :
+                                `<button class="btn btn-outline" style="width: auto; padding: 8px 16px;" onclick="copyPhoneNumber('${phone}')">
+                                    <i class="far fa-copy"></i> نسخ الرقم
+                                </button>`
+                            }
+                        `;
+                        contactsList.appendChild(div);
+                    }
+                }
+                
+                document.getElementById('contactsModal').classList.add('active');
+                
+            } catch (error) {
+                console.error('Error accessing contacts:', error);
+                showToast('حدث خطأ أثناء الوصول إلى جهات الاتصال');
+            }
+        };
+        
+        window.startChatWithContact = function(userId, userName) {
+            closeContactsModal();
+            openChat(userId, userName);
+        };
+        
+        window.copyPhoneNumber = function(phone) {
+            navigator.clipboard?.writeText(phone).then(() => showToast('📋 تم نسخ الرقم: ' + phone));
+        };
+        
+        window.closeContactsModal = function() {
+            document.getElementById('contactsModal').classList.remove('active');
+        };
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         // وظائف المتصفح
         window.showBrowser = function() {
-            toggleSidebar();
             document.getElementById('mainScreen').classList.add('hidden');
             document.getElementById('browserScreen').classList.remove('hidden');
             loadAllSites();
@@ -2434,7 +2720,6 @@
                 const ratingRef = ref(db, `hosted_sites/${projectId}/ratings/${currentUser.id}`);
                 await set(ratingRef, rating);
                 
-                // Recalculate average
                 const ratingsSnap = await get(ref(db, `hosted_sites/${projectId}/ratings`));
                 let total = 0, count = 0;
                 if (ratingsSnap.exists()) {
@@ -2480,8 +2765,6 @@
             });
             if (event && event.target) {
                 event.target.closest('.filter-tab').classList.add('active');
-            } else {
-                document.querySelector(`.filter-tab[onclick="setBrowserFilter('${filter}')"]`)?.classList.add('active');
             }
             displaySites(allSites);
         };
@@ -2516,7 +2799,6 @@
 
         // وظائف المنتدى والمحادثة
         window.showForum = function() {
-            toggleSidebar();
             document.getElementById('mainScreen').classList.add('hidden');
             document.getElementById('forumScreen').classList.remove('hidden');
             loadPosts();
@@ -2604,7 +2886,7 @@
                         div.style.animationDelay = (index * 0.05) + 's';
                         div.innerHTML = `
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <div class="profile-header" onclick="openUserProfile('${post.authorId}', '${post.authorName}')">
+                                <div class="profile-header" onclick="showUserActions('${post.authorId}', '${post.authorName}')">
                                     <img src="${post.authorAvatar}" class="post-avatar" alt="${post.authorName}">
                                     <div>
                                         <div class="post-author">${post.authorName}</div>
@@ -2744,24 +3026,78 @@
             return snap.exists();
         }
 
-        window.openUserProfile = async function(userId, userName) {
+        window.showUserActions = async function(userId, userName) {
             if (userId === currentUser.id) {
                 showToast('هذا أنت');
                 return;
             }
             
+            selectedUserId = userId;
+            selectedUserName = userName;
+            
             const isFriend = await checkFriendship(userId);
+            const isRequestSent = await checkFriendRequestSent(userId);
             
-            const actionText = isFriend ? 'إرسال رسالة' : 'إرسال طلب صداقة';
-            const actionIcon = isFriend ? 'fa-comment' : 'fa-user-plus';
+            document.getElementById('userActionTitle').textContent = `${userName}`;
+            const buttonsDiv = document.getElementById('userActionButtons');
+            buttonsDiv.innerHTML = '';
             
-            if (confirm(`هل تريد ${actionText} مع ${userName}؟`)) {
-                if (isFriend) {
-                    openChat(userId, userName);
-                } else {
-                    sendFriendRequest(userId, userName);
-                }
+            if (isFriend) {
+                buttonsDiv.innerHTML = `
+                    <div class="user-action-btn" style="background: var(--blue); color: white;" onclick="startChatWithUser()">
+                        <i class="fas fa-comment"></i> مراسلة
+                    </div>
+                    <div class="user-action-btn" style="background: var(--orange); color: white;" onclick="viewFriendPostsFromModal()">
+                        <i class="fas fa-newspaper"></i> المنشورات
+                    </div>
+                `;
+            } else if (isRequestSent) {
+                buttonsDiv.innerHTML = `
+                    <div class="user-action-btn" style="background: var(--text-secondary); color: white;">
+                        <i class="fas fa-clock"></i> طلب مرسل
+                    </div>
+                `;
+            } else {
+                buttonsDiv.innerHTML = `
+                    <div class="user-action-btn" style="background: var(--green); color: white;" onclick="sendFriendRequestFromModal()">
+                        <i class="fas fa-user-plus"></i> إرسال طلب صداقة
+                    </div>
+                `;
             }
+            
+            document.getElementById('userActionModal').classList.add('active');
+        };
+        
+        async function checkFriendRequestSent(toUserId) {
+            const requestId = `${currentUser.id}_${toUserId}`;
+            const requestRef = ref(db, `friend_requests/${toUserId}/${requestId}`);
+            const snap = await get(requestRef);
+            return snap.exists() && snap.val().status === 'pending';
+        }
+        
+        window.sendFriendRequestFromModal = async function() {
+            await sendFriendRequest(selectedUserId, selectedUserName);
+            closeUserActionModal();
+        };
+        
+        window.startChatWithUser = async function() {
+            const isFriend = await checkFriendship(selectedUserId);
+            if (!isFriend) {
+                showToast('لا يمكنك المراسلة إلا بعد قبول طلب الصداقة');
+                return;
+            }
+            closeUserActionModal();
+            openChat(selectedUserId, selectedUserName);
+        };
+        
+        window.viewFriendPostsFromModal = async function() {
+            closeUserActionModal();
+            await viewFriendPosts(selectedUserId, selectedUserName);
+        };
+        
+        window.closeUserActionModal = function() {
+            document.getElementById('userActionModal').classList.remove('active');
+            selectedUserId = null;
         };
 
         async function sendFriendRequest(toUserId, toUserName) {
@@ -2933,7 +3269,7 @@
             document.getElementById('friendPostsModal').classList.remove('active');
         };
 
-        // Chat Functions with Friend Check
+        // Chat Functions
         window.openChat = async function(userId, userName) {
             const isFriend = await checkFriendship(userId);
             if (!isFriend) {
@@ -2965,7 +3301,7 @@
 
         function loadChatMessages() {
             if (!currentChatUserId) return;
-            const chatId = `${currentUser.id}_${currentChatUserId}`;
+            const chatId = [currentUser.id, currentChatUserId].sort().join('_');
             const messagesRef = ref(db, `private_messages/${chatId}`);
             
             if (chatMessagesListener) chatMessagesListener();
@@ -2982,7 +3318,7 @@
                         const div = document.createElement('div');
                         div.className = `message-bubble ${msg.from === currentUser.id ? 'message-sent' : 'message-received'}`;
                         div.innerHTML = `
-                            <div>${msg.content}</div>
+                            <div>${escapeHtml(msg.content)}</div>
                             <div class="message-time">${new Date(msg.timestamp).toLocaleTimeString()}</div>
                         `;
                         container.appendChild(div);
@@ -3006,7 +3342,7 @@
             }
             
             try {
-                const chatId = `${currentUser.id}_${currentChatUserId}`;
+                const chatId = [currentUser.id, currentChatUserId].sort().join('_');
                 const msgData = {
                     from: currentUser.id,
                     fromName: currentUser.name,
@@ -3021,10 +3357,11 @@
                 document.getElementById('chatMessageInput').value = '';
             } catch(e) {
                 showToast('فشل الإرسال');
+                console.error(e);
             }
         };
 
-        // Conversations Drawer
+        // Conversations Drawer (المحادثات)
         window.openConversationsDrawer = function() {
             loadConversations();
             document.getElementById('conversationsDrawer').classList.add('open');
@@ -3038,8 +3375,11 @@
 
         function loadConversations() {
             if (!currentUser) return;
-            const conversationsRef = ref(db, `private_messages`);
-            onValue(conversationsRef, async (snapshot) => {
+            const messagesRef = ref(db, `private_messages`);
+            
+            if (conversationsListener) conversationsListener();
+            
+            conversationsListener = onValue(messagesRef, async (snapshot) => {
                 const container = document.getElementById('conversationsList');
                 const emptyDiv = document.getElementById('conversationsEmpty');
                 container.innerHTML = '';
@@ -3049,15 +3389,19 @@
                     const allChats = snapshot.val();
                     for (const [chatId, messages] of Object.entries(allChats)) {
                         if (chatId.includes(currentUser.id)) {
-                            const otherId = chatId.replace(currentUser.id, '').replace('_', '');
+                            const ids = chatId.split('_');
+                            const otherId = ids[0] === currentUser.id ? ids[1] : ids[0];
                             if (otherId && !conversations.has(otherId)) {
                                 const msgList = Object.values(messages);
                                 const lastMsg = msgList.sort((a,b) => b.timestamp - a.timestamp)[0];
-                                if (lastMsg && await checkFriendship(otherId)) {
-                                    const userSnap = await get(ref(db, 'users/' + otherId));
-                                    if (userSnap.exists()) {
-                                        const user = userSnap.val();
-                                        conversations.set(otherId, { lastMsg, user });
+                                if (lastMsg) {
+                                    const isFriend = await checkFriendship(otherId);
+                                    if (isFriend) {
+                                        const userSnap = await get(ref(db, 'users/' + otherId));
+                                        if (userSnap.exists()) {
+                                            const user = userSnap.val();
+                                            conversations.set(otherId, { lastMsg, user });
+                                        }
                                     }
                                 }
                             }
@@ -3070,7 +3414,9 @@
                     }
                     emptyDiv.classList.add('hidden');
                     
-                    for (const [otherId, data] of conversations) {
+                    const sorted = Array.from(conversations.entries()).sort((a,b) => b[1].lastMsg.timestamp - a[1].lastMsg.timestamp);
+                    
+                    for (const [otherId, data] of sorted) {
                         const div = document.createElement('div');
                         div.className = 'conversation-item';
                         div.onclick = () => {
@@ -3081,9 +3427,101 @@
                             <img src="${data.user.avatar || LOGO_URL}" class="conversation-avatar">
                             <div class="conversation-info">
                                 <div class="conversation-name">${data.user.name}</div>
-                                <div class="conversation-last-msg">${data.lastMsg.content.substring(0, 50)}</div>
+                                <div class="conversation-last-msg">${escapeHtml(data.lastMsg.content.substring(0, 50))}</div>
                             </div>
                             <div class="conversation-time">${new Date(data.lastMsg.timestamp).toLocaleTimeString()}</div>
+                        `;
+                        container.appendChild(div);
+                    }
+                } else {
+                    emptyDiv.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Messages Drawer (الرسائل الخاصة)
+        window.openMessagesDrawer = function() {
+            loadMessages();
+            document.getElementById('messagesDrawer').classList.add('open');
+            document.getElementById('overlay').classList.add('active');
+        };
+
+        window.closeMessagesDrawer = function() {
+            document.getElementById('messagesDrawer').classList.remove('open');
+            document.getElementById('overlay').classList.remove('active');
+        };
+
+        function loadMessages() {
+            if (!currentUser) return;
+            const messagesRef = ref(db, `private_messages`);
+            
+            if (messagesListener) messagesListener();
+            
+            messagesListener = onValue(messagesRef, async (snapshot) => {
+                const container = document.getElementById('messagesList');
+                const emptyDiv = document.getElementById('messagesEmpty');
+                container.innerHTML = '';
+                const conversations = new Map();
+                
+                if (snapshot.exists()) {
+                    const allChats = snapshot.val();
+                    for (const [chatId, messages] of Object.entries(allChats)) {
+                        if (chatId.includes(currentUser.id)) {
+                            const ids = chatId.split('_');
+                            const otherId = ids[0] === currentUser.id ? ids[1] : ids[0];
+                            if (otherId && !conversations.has(otherId)) {
+                                const msgList = Object.values(messages);
+                                const lastMsg = msgList.sort((a,b) => b.timestamp - a.timestamp)[0];
+                                if (lastMsg) {
+                                    const isFriend = await checkFriendship(otherId);
+                                    if (isFriend) {
+                                        const userSnap = await get(ref(db, 'users/' + otherId));
+                                        if (userSnap.exists()) {
+                                            const user = userSnap.val();
+                                            const unreadCount = msgList.filter(m => m.to === currentUser.id && !m.read).length;
+                                            conversations.set(otherId, { lastMsg, user, unreadCount });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (conversations.size === 0) {
+                        emptyDiv.classList.remove('hidden');
+                        return;
+                    }
+                    emptyDiv.classList.add('hidden');
+                    
+                    const sorted = Array.from(conversations.entries()).sort((a,b) => b[1].lastMsg.timestamp - a[1].lastMsg.timestamp);
+                    
+                    for (const [otherId, data] of sorted) {
+                        const div = document.createElement('div');
+                        div.className = 'conversation-item';
+                        div.onclick = async () => {
+                            // Mark as read
+                            const chatId = [currentUser.id, otherId].sort().join('_');
+                            const msgsRef = ref(db, `private_messages/${chatId}`);
+                            const snap = await get(msgsRef);
+                            if (snap.exists()) {
+                                const msgs = snap.val();
+                                for (const [msgId, msg] of Object.entries(msgs)) {
+                                    if (msg.to === currentUser.id && !msg.read) {
+                                        await update(ref(db, `private_messages/${chatId}/${msgId}`), { read: true });
+                                    }
+                                }
+                            }
+                            closeMessagesDrawer();
+                            openChat(otherId, data.user.name);
+                        };
+                        div.innerHTML = `
+                            <img src="${data.user.avatar || LOGO_URL}" class="conversation-avatar">
+                            <div class="conversation-info">
+                                <div class="conversation-name">${data.user.name}</div>
+                                <div class="conversation-last-msg">${escapeHtml(data.lastMsg.content.substring(0, 50))}</div>
+                            </div>
+                            <div class="conversation-time">${new Date(data.lastMsg.timestamp).toLocaleTimeString()}</div>
+                            ${data.unreadCount > 0 ? `<div class="conversation-unread"></div>` : ''}
                         `;
                         container.appendChild(div);
                     }
@@ -3190,7 +3628,6 @@
 
         // وظائف مولد QR
         window.showQRGenerator = function() {
-            toggleSidebar();
             document.getElementById('mainScreen').classList.add('hidden');
             document.getElementById('qrGeneratorScreen').classList.remove('hidden');
             document.getElementById('qrResult').classList.add('hidden');
@@ -3275,7 +3712,6 @@
 
         // وظائف رفع الكود
         window.showCodeHosting = function() {
-            toggleSidebar();
             document.getElementById('mainScreen').classList.add('hidden');
             document.getElementById('codeHostingScreen').classList.remove('hidden');
             document.getElementById('deployResult').classList.add('hidden');
@@ -3543,7 +3979,7 @@
                         const userSnap = await get(ref(db, 'users/' + data.userId));
                         if (userSnap.exists()) {
                             const userData = userSnap.val();
-                            currentUser = { id: userData.id, name: userData.name, email: userData.email, avatar: userData.avatar || LOGO_URL };
+                            currentUser = { id: userData.id, name: userData.name, email: userData.email, phone: userData.phone || null, avatar: userData.avatar || LOGO_URL };
                             localStorage.setItem('user', JSON.stringify(currentUser));
                             await remove(currentSessionRef);
                             showMainScreen();
@@ -3556,7 +3992,10 @@
         window.refreshPCSession = function() { if (currentSessionRef) { remove(currentSessionRef); } if (sessionCheckInterval) { clearInterval(sessionCheckInterval); } startPCSession(); };
         window.logout = function() {
             currentUser = null; localStorage.removeItem('user'); toggleSidebar();
-            document.getElementById('authScreen').classList.add('hidden'); document.getElementById('mainScreen').classList.add('hidden'); document.getElementById('linkDeviceScreen').classList.add('hidden'); document.getElementById('codeHostingScreen').classList.add('hidden'); document.getElementById('qrGeneratorScreen').classList.add('hidden'); document.getElementById('forumScreen').classList.add('hidden'); document.getElementById('browserScreen').classList.add('hidden'); document.getElementById('redirectScreen').classList.add('hidden'); document.getElementById('chatScreen').classList.add('hidden'); document.getElementById('siteDashboardScreen').classList.add('hidden'); closeConversationsDrawer();
+            document.getElementById('authScreen').classList.add('hidden'); document.getElementById('mainScreen').classList.add('hidden'); document.getElementById('linkDeviceScreen').classList.add('hidden'); document.getElementById('codeHostingScreen').classList.add('hidden'); document.getElementById('qrGeneratorScreen').classList.add('hidden'); document.getElementById('forumScreen').classList.add('hidden'); document.getElementById('browserScreen').classList.add('hidden'); document.getElementById('redirectScreen').classList.add('hidden'); document.getElementById('chatScreen').classList.add('hidden'); document.getElementById('siteDashboardScreen').classList.add('hidden'); closeConversationsDrawer(); closeMessagesDrawer();
+            if (conversationsListener) conversationsListener();
+            if (messagesListener) messagesListener();
+            if (chatMessagesListener) chatMessagesListener();
             if (isPC) { document.getElementById('pcAuthContent').classList.remove('hidden'); document.getElementById('mobileAuthContent').classList.add('hidden'); document.getElementById('authScreen').classList.remove('hidden'); refreshPCSession(); }
             else { document.getElementById('authScreen').classList.remove('hidden'); }
             showToast('👋 تم تسجيل الخروج');
