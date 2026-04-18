@@ -1137,6 +1137,62 @@
         .profile-header:hover {
             opacity: 0.8;
         }
+
+        /* Conversations Drawer */
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 85%;
+            max-width: 350px;
+            height: 100%;
+            background: var(--bg-secondary);
+            z-index: 1100;
+            transition: right 0.3s var(--transition-smooth);
+            box-shadow: -2px 0 10px var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+        .drawer.open {
+            right: 0;
+        }
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 0.5px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .conversation-item:hover {
+            background: var(--bg-tertiary);
+        }
+        .conversation-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            object-fit: cover;
+        }
+        .conversation-info {
+            flex: 1;
+        }
+        .conversation-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .conversation-last-msg {
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+        .conversation-time {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -1416,6 +1472,55 @@
             </div>
         </div>
 
+        <!-- مودال تعديل الملف الشخصي -->
+        <div id="editProfileModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-title">تعديل الملف الشخصي</div>
+                <div class="input-group">
+                    <div class="input-label">الاسم</div>
+                    <input type="text" id="editProfileName" class="input-field" placeholder="الاسم">
+                </div>
+                <div class="input-group">
+                    <div class="input-label">رابط الصورة الجديد</div>
+                    <input type="text" id="editProfileAvatar" class="input-field dir-ltr" placeholder="https://example.com/avatar.jpg">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-outline" onclick="closeEditProfileModal()">إلغاء</button>
+                    <button class="btn" onclick="saveProfileChanges()">حفظ التغييرات</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مودال طلبات الصداقة -->
+        <div id="friendRequestsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-title">طلبات الصداقة</div>
+                <div id="friendRequestsList"></div>
+                <div id="friendRequestsEmpty" class="empty-state hidden">
+                    <i class="fas fa-user-friends"></i>
+                    <p>لا توجد طلبات صداقة</p>
+                </div>
+                <div style="margin-top: 12px;">
+                    <button class="btn btn-outline" onclick="closeFriendRequestsModal()">إغلاق</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مودال عرض منشورات الصديق -->
+        <div id="friendPostsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-title" id="friendPostsTitle"></div>
+                <div id="friendPostsList"></div>
+                <div id="friendPostsEmpty" class="empty-state hidden">
+                    <i class="fas fa-newspaper"></i>
+                    <p>لا توجد منشورات بعد</p>
+                </div>
+                <div style="margin-top: 12px;">
+                    <button class="btn btn-outline" onclick="closeFriendPostsModal()">إغلاق</button>
+                </div>
+            </div>
+        </div>
+
         <!-- شاشة مولد QR -->
         <div id="qrGeneratorScreen" class="hidden">
             <div class="nav-bar">
@@ -1593,14 +1698,25 @@
             <div class="nav-bar">
                 <div></div>
                 <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">elgoharyX</div>
-                <div onclick="toggleSidebar()" style="color: var(--blue); font-size: 20px; cursor: pointer;">
-                    <i class="fas fa-bars"></i>
+                <div style="display: flex; gap: 16px;">
+                    <div onclick="openConversationsDrawer()" style="color: var(--blue); font-size: 20px; cursor: pointer; position: relative;">
+                        <i class="fas fa-envelope"></i>
+                        <span id="unreadBadge" style="position: absolute; top: -8px; right: -8px; background: var(--red); color: white; font-size: 10px; border-radius: 10px; padding: 2px 6px; display: none;"></span>
+                    </div>
+                    <div onclick="toggleSidebar()" style="color: var(--blue); font-size: 20px; cursor: pointer;">
+                        <i class="fas fa-bars"></i>
+                    </div>
                 </div>
             </div>
 
             <div style="padding: 16px;">
                 <div class="card">
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png" class="avatar">
+                    <div style="position: relative;">
+                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH5Tji4WfG5r2d_T0XAd2LBBNB28t2dhFqJAcbR5JSpyMqqNB6IbugiC2Vos-2smWIa3tMpA7kEHf3iMcHSsbmkZUw9I1AwP-ocTRnlzLDJWjCb8eH5m2cRXiWpIa-O6a1bOSdyB9hUg-FepVa9QPjTs8Co6nX0_GDnednjERDFmN1quZbkIbW5wQjh2I/s1024/103777.png" class="avatar" id="profileAvatar">
+                        <div onclick="showEditProfileModal()" style="position: absolute; bottom: 0; right: 50%; transform: translateX(50%); background: var(--blue); color: white; width: 32px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--bg-secondary);">
+                            <i class="fas fa-pen" style="font-size: 12px;"></i>
+                        </div>
+                    </div>
                     <h2 style="font-size: 22px; font-weight: 700; text-align: center; color: var(--text-primary);" id="displayName"></h2>
                     <p style="font-size: 15px; color: var(--text-secondary); text-align: center;" id="displayEmail"></p>
                 </div>
@@ -1652,7 +1768,23 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية -->
+    <!-- قائمة المحادثات الجانبية -->
+    <div class="drawer" id="conversationsDrawer">
+        <div class="nav-bar" style="position: sticky; top: 0;">
+            <div onclick="closeConversationsDrawer()" style="color: var(--blue); font-size: 20px; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </div>
+            <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">المحادثات</div>
+            <div></div>
+        </div>
+        <div id="conversationsList" style="flex: 1; overflow-y: auto;"></div>
+        <div id="conversationsEmpty" class="empty-state hidden">
+            <i class="fas fa-comments"></i>
+            <p>لا توجد محادثات بعد</p>
+        </div>
+    </div>
+
+    <!-- القائمة الجانبية الرئيسية -->
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
     <div class="sidebar" id="sidebar">
         <div style="padding: 60px 20px 20px; border-bottom: 0.5px solid var(--border-color); position: relative;">
@@ -1669,6 +1801,12 @@
                     <div style="font-weight: 600; color: var(--text-primary);" id="sidebarName"></div>
                     <div style="font-size: 13px; color: var(--text-secondary);" id="sidebarEmail"></div>
                 </div>
+            </div>
+
+            <div class="sidebar-menu-item" onclick="showFriendRequests()">
+                <span class="icon"><i class="fas fa-user-plus"></i></span>
+                <span class="label">طلبات الصداقة</span>
+                <span class="arrow"><i class="fas fa-chevron-left"></i></span>
             </div>
 
             <div class="sidebar-menu-item" onclick="showLinkDeviceFromSidebar()" id="linkDeviceMenuItem">
@@ -1728,6 +1866,21 @@
                 <p style="font-size: 14px;">لا توجد أجهزة مرتبطة</p>
             </div>
             
+            <div class="section-divider"></div>
+            
+            <!-- قسم الأصدقاء -->
+            <div class="section-title">
+                <i class="fas fa-user-friends" style="color: var(--blue);"></i>
+                الأصدقاء
+            </div>
+            
+            <div id="friendsLoading"><div class="loader"></div></div>
+            <div id="friendsList"></div>
+            <div id="friendsEmptyState" class="hidden" style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                <i class="fas fa-user-friends" style="font-size: 32px; margin-bottom: 8px; opacity: 0.3;"></i>
+                <p style="font-size: 14px;">لا يوجد أصدقاء بعد</p>
+            </div>
+
             <div class="section-divider"></div>
             
             <!-- قسم المواقع -->
@@ -2451,7 +2604,7 @@
                         div.style.animationDelay = (index * 0.05) + 's';
                         div.innerHTML = `
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <div class="profile-header" onclick="openChat('${post.authorId}', '${post.authorName}')">
+                                <div class="profile-header" onclick="openUserProfile('${post.authorId}', '${post.authorName}')">
                                     <img src="${post.authorAvatar}" class="post-avatar" alt="${post.authorName}">
                                     <div>
                                         <div class="post-author">${post.authorName}</div>
@@ -2583,8 +2736,210 @@
             }
         };
 
-        // Chat Functions
-        window.openChat = function(userId, userName) {
+        // Friend System Functions
+        async function checkFriendship(userId) {
+            if (!currentUser) return false;
+            const friendRef = ref(db, `friends/${currentUser.id}/${userId}`);
+            const snap = await get(friendRef);
+            return snap.exists();
+        }
+
+        window.openUserProfile = async function(userId, userName) {
+            if (userId === currentUser.id) {
+                showToast('هذا أنت');
+                return;
+            }
+            
+            const isFriend = await checkFriendship(userId);
+            
+            const actionText = isFriend ? 'إرسال رسالة' : 'إرسال طلب صداقة';
+            const actionIcon = isFriend ? 'fa-comment' : 'fa-user-plus';
+            
+            if (confirm(`هل تريد ${actionText} مع ${userName}؟`)) {
+                if (isFriend) {
+                    openChat(userId, userName);
+                } else {
+                    sendFriendRequest(userId, userName);
+                }
+            }
+        };
+
+        async function sendFriendRequest(toUserId, toUserName) {
+            try {
+                const requestId = `${currentUser.id}_${toUserId}`;
+                const requestRef = ref(db, `friend_requests/${toUserId}/${requestId}`);
+                const existing = await get(requestRef);
+                if (existing.exists()) {
+                    showToast('تم إرسال طلب سابقاً');
+                    return;
+                }
+                
+                await set(requestRef, {
+                    from: currentUser.id,
+                    fromName: currentUser.name,
+                    fromAvatar: currentUser.avatar,
+                    to: toUserId,
+                    toName: toUserName,
+                    status: 'pending',
+                    timestamp: Date.now()
+                });
+                showToast(`✅ تم إرسال طلب صداقة إلى ${toUserName}`);
+            } catch(e) {
+                showToast('فشل إرسال الطلب');
+            }
+        }
+
+        window.showFriendRequests = async function() {
+            toggleSidebar();
+            const requestsRef = ref(db, `friend_requests/${currentUser.id}`);
+            const snap = await get(requestsRef);
+            const container = document.getElementById('friendRequestsList');
+            const emptyDiv = document.getElementById('friendRequestsEmpty');
+            container.innerHTML = '';
+            
+            if (snap.exists()) {
+                emptyDiv.classList.add('hidden');
+                const requests = snap.val();
+                for (const [key, req] of Object.entries(requests)) {
+                    if (req.status === 'pending') {
+                        const div = document.createElement('div');
+                        div.className = 'friend-request-item';
+                        div.style.cssText = 'display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 0.5px solid var(--border-color);';
+                        div.innerHTML = `
+                            <img src="${req.fromAvatar || LOGO_URL}" style="width: 50px; height: 50px; border-radius: 25px; object-fit: cover;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600;">${req.fromName}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">طلب صداقة</div>
+                            </div>
+                            <button class="btn" style="width: auto; padding: 8px 16px; background: var(--green);" onclick="acceptFriendRequest('${req.from}')">قبول</button>
+                            <button class="btn btn-outline" style="width: auto; padding: 8px 16px;" onclick="rejectFriendRequest('${req.from}')">رفض</button>
+                        `;
+                        container.appendChild(div);
+                    }
+                }
+            } else {
+                emptyDiv.classList.remove('hidden');
+            }
+            document.getElementById('friendRequestsModal').classList.add('active');
+        };
+
+        window.acceptFriendRequest = async function(fromUserId) {
+            try {
+                await update(ref(db, `friend_requests/${currentUser.id}/${fromUserId}_${currentUser.id}`), { status: 'accepted' });
+                await set(ref(db, `friends/${currentUser.id}/${fromUserId}`), true);
+                await set(ref(db, `friends/${fromUserId}/${currentUser.id}`), true);
+                showToast('✅ تم قبول الصديق');
+                showFriendRequests();
+                loadFriends();
+            } catch(e) { showToast('فشل القبول'); }
+        };
+
+        window.rejectFriendRequest = async function(fromUserId) {
+            try {
+                await remove(ref(db, `friend_requests/${currentUser.id}/${fromUserId}_${currentUser.id}`));
+                showToast('تم رفض الطلب');
+                showFriendRequests();
+            } catch(e) { showToast('فشل الرفض'); }
+        };
+
+        window.closeFriendRequestsModal = function() {
+            document.getElementById('friendRequestsModal').classList.remove('active');
+        };
+
+        function loadFriends() {
+            if (!currentUser) return;
+            const friendsRef = ref(db, `friends/${currentUser.id}`);
+            onValue(friendsRef, async (snapshot) => {
+                document.getElementById('friendsLoading').style.display = 'none';
+                const listDiv = document.getElementById('friendsList');
+                listDiv.innerHTML = '';
+                if (snapshot.exists()) {
+                    const friends = snapshot.val();
+                    const friendIds = Object.keys(friends);
+                    if (friendIds.length === 0) {
+                        document.getElementById('friendsEmptyState').classList.remove('hidden');
+                        return;
+                    }
+                    document.getElementById('friendsEmptyState').classList.add('hidden');
+                    for (const friendId of friendIds) {
+                        const userSnap = await get(ref(db, 'users/' + friendId));
+                        if (userSnap.exists()) {
+                            const friendData = userSnap.val();
+                            const div = document.createElement('div');
+                            div.className = 'friend-item';
+                            div.style.cssText = 'display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 14px; margin-bottom: 10px;';
+                            div.innerHTML = `
+                                <img src="${friendData.avatar || LOGO_URL}" style="width: 48px; height: 48px; border-radius: 24px; object-fit: cover;">
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600;">${friendData.name}</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">${friendData.email}</div>
+                                </div>
+                                <div class="site-actions">
+                                    <div class="site-action-btn" onclick="openChat('${friendId}', '${friendData.name}')" title="مراسلة">
+                                        <i class="fas fa-comment"></i>
+                                    </div>
+                                    <div class="site-action-btn" onclick="viewFriendPosts('${friendId}', '${friendData.name}')" title="آخر المنشورات">
+                                        <i class="fas fa-newspaper"></i>
+                                    </div>
+                                </div>
+                            `;
+                            listDiv.appendChild(div);
+                        }
+                    }
+                } else {
+                    document.getElementById('friendsEmptyState').classList.remove('hidden');
+                }
+            });
+        }
+
+        window.viewFriendPosts = async function(userId, userName) {
+            const postsRef = ref(db, 'forum_posts');
+            const postsQuery = query(postsRef, orderByChild('createdAt'), limitToLast(20));
+            const snapshot = await get(postsQuery);
+            const container = document.getElementById('friendPostsList');
+            const emptyDiv = document.getElementById('friendPostsEmpty');
+            container.innerHTML = '';
+            document.getElementById('friendPostsTitle').textContent = `أحدث منشورات ${userName}`;
+            
+            if (snapshot.exists()) {
+                let found = false;
+                const posts = snapshot.val();
+                const postIds = Object.keys(posts).reverse();
+                for (const postId of postIds) {
+                    const post = posts[postId];
+                    if (post.authorId === userId) {
+                        found = true;
+                        const postDate = new Date(post.createdAt).toLocaleString('ar-EG');
+                        const div = document.createElement('div');
+                        div.className = 'post-item';
+                        div.innerHTML = `
+                            <div class="post-author">${post.authorName}</div>
+                            <div class="post-time">${postDate}</div>
+                            <div class="post-content">${post.content.substring(0, 150)}${post.content.length > 150 ? '...' : ''}</div>
+                            ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image" style="max-height: 150px;">` : ''}
+                        `;
+                        container.appendChild(div);
+                    }
+                }
+                if (!found) emptyDiv.classList.remove('hidden');
+                else emptyDiv.classList.add('hidden');
+            } else {
+                emptyDiv.classList.remove('hidden');
+            }
+            document.getElementById('friendPostsModal').classList.add('active');
+        };
+
+        window.closeFriendPostsModal = function() {
+            document.getElementById('friendPostsModal').classList.remove('active');
+        };
+
+        // Chat Functions with Friend Check
+        window.openChat = async function(userId, userName) {
+            const isFriend = await checkFriendship(userId);
+            if (!isFriend) {
+                showToast('لا يمكنك المراسلة إلا بعد قبول طلب الصداقة');
+                return;
+            }
             if (userId === currentUser.id) {
                 showToast('لا يمكنك مراسلة نفسك');
                 return;
@@ -2595,7 +2950,6 @@
             document.getElementById('mainScreen').classList.add('hidden');
             document.getElementById('forumScreen').classList.add('hidden');
             document.getElementById('chatScreen').classList.remove('hidden');
-            
             loadChatMessages();
         };
 
@@ -2611,9 +2965,8 @@
 
         function loadChatMessages() {
             if (!currentChatUserId) return;
-            const chatId1 = `${currentUser.id}_${currentChatUserId}`;
-            const chatId2 = `${currentChatUserId}_${currentUser.id}`;
-            const messagesRef = ref(db, `private_messages/${chatId1}`);
+            const chatId = `${currentUser.id}_${currentChatUserId}`;
+            const messagesRef = ref(db, `private_messages/${chatId}`);
             
             if (chatMessagesListener) chatMessagesListener();
             
@@ -2645,9 +2998,15 @@
             const content = document.getElementById('chatMessageInput').value.trim();
             if (!content || !currentChatUserId) return;
             
+            const isFriend = await checkFriendship(currentChatUserId);
+            if (!isFriend) {
+                showToast('لا يمكنك إرسال رسائل لهذا المستخدم');
+                hideChatScreen();
+                return;
+            }
+            
             try {
-                const chatId1 = `${currentUser.id}_${currentChatUserId}`;
-                const chatId2 = `${currentChatUserId}_${currentUser.id}`;
+                const chatId = `${currentUser.id}_${currentChatUserId}`;
                 const msgData = {
                     from: currentUser.id,
                     fromName: currentUser.name,
@@ -2658,14 +3017,81 @@
                     read: false
                 };
                 
-                await push(ref(db, `private_messages/${chatId1}`), msgData);
-                await push(ref(db, `private_messages/${chatId2}`), msgData);
-                
+                await push(ref(db, `private_messages/${chatId}`), msgData);
                 document.getElementById('chatMessageInput').value = '';
             } catch(e) {
                 showToast('فشل الإرسال');
             }
         };
+
+        // Conversations Drawer
+        window.openConversationsDrawer = function() {
+            loadConversations();
+            document.getElementById('conversationsDrawer').classList.add('open');
+            document.getElementById('overlay').classList.add('active');
+        };
+
+        window.closeConversationsDrawer = function() {
+            document.getElementById('conversationsDrawer').classList.remove('open');
+            document.getElementById('overlay').classList.remove('active');
+        };
+
+        function loadConversations() {
+            if (!currentUser) return;
+            const conversationsRef = ref(db, `private_messages`);
+            onValue(conversationsRef, async (snapshot) => {
+                const container = document.getElementById('conversationsList');
+                const emptyDiv = document.getElementById('conversationsEmpty');
+                container.innerHTML = '';
+                const conversations = new Map();
+                
+                if (snapshot.exists()) {
+                    const allChats = snapshot.val();
+                    for (const [chatId, messages] of Object.entries(allChats)) {
+                        if (chatId.includes(currentUser.id)) {
+                            const otherId = chatId.replace(currentUser.id, '').replace('_', '');
+                            if (otherId && !conversations.has(otherId)) {
+                                const msgList = Object.values(messages);
+                                const lastMsg = msgList.sort((a,b) => b.timestamp - a.timestamp)[0];
+                                if (lastMsg && await checkFriendship(otherId)) {
+                                    const userSnap = await get(ref(db, 'users/' + otherId));
+                                    if (userSnap.exists()) {
+                                        const user = userSnap.val();
+                                        conversations.set(otherId, { lastMsg, user });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (conversations.size === 0) {
+                        emptyDiv.classList.remove('hidden');
+                        return;
+                    }
+                    emptyDiv.classList.add('hidden');
+                    
+                    for (const [otherId, data] of conversations) {
+                        const div = document.createElement('div');
+                        div.className = 'conversation-item';
+                        div.onclick = () => {
+                            closeConversationsDrawer();
+                            openChat(otherId, data.user.name);
+                        };
+                        div.innerHTML = `
+                            <img src="${data.user.avatar || LOGO_URL}" class="conversation-avatar">
+                            <div class="conversation-info">
+                                <div class="conversation-name">${data.user.name}</div>
+                                <div class="conversation-last-msg">${data.lastMsg.content.substring(0, 50)}</div>
+                            </div>
+                            <div class="conversation-time">${new Date(data.lastMsg.timestamp).toLocaleTimeString()}</div>
+                        `;
+                        container.appendChild(div);
+                    }
+                } else {
+                    emptyDiv.classList.remove('hidden');
+                }
+            });
+        }
 
         // Dashboard Functions
         window.showSiteDashboard = async function(siteId) {
@@ -2729,6 +3155,39 @@
             }
         };
 
+        // Profile Edit
+        window.showEditProfileModal = function() {
+            document.getElementById('editProfileName').value = currentUser.name;
+            document.getElementById('editProfileAvatar').value = currentUser.avatar || '';
+            document.getElementById('editProfileModal').classList.add('active');
+        };
+
+        window.closeEditProfileModal = function() {
+            document.getElementById('editProfileModal').classList.remove('active');
+        };
+
+        window.saveProfileChanges = async function() {
+            const newName = document.getElementById('editProfileName').value.trim();
+            const newAvatar = document.getElementById('editProfileAvatar').value.trim();
+            if (!newName) {
+                showToast('الاسم مطلوب');
+                return;
+            }
+            try {
+                const updates = { name: newName };
+                if (newAvatar) updates.avatar = newAvatar;
+                await update(ref(db, 'users/' + currentUser.id), updates);
+                currentUser.name = newName;
+                if (newAvatar) currentUser.avatar = newAvatar;
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                showMainScreen();
+                closeEditProfileModal();
+                showToast('✅ تم تحديث الملف الشخصي');
+            } catch(e) {
+                showToast('فشل التحديث');
+            }
+        };
+
         // وظائف مولد QR
         window.showQRGenerator = function() {
             toggleSidebar();
@@ -2746,28 +3205,17 @@
 
         window.generateQRCode = function() {
             const text = document.getElementById('qrText').value.trim();
-            
-            if (!text) {
-                showToast('أدخل نصاً أو رابطاً');
-                return;
-            }
-            
+            if (!text) { showToast('أدخل نصاً أو رابطاً'); return; }
             currentQRText = text;
-            
             const qrDisplay = document.getElementById('qrCodeDisplay');
             qrDisplay.innerHTML = '';
-            
             const isDark = document.body.classList.contains('dark-mode');
-            
             new QRCode(qrDisplay, {
-                text: text,
-                width: 250,
-                height: 250,
+                text: text, width: 250, height: 250,
                 colorDark: isDark ? "#FFFFFF" : "#000000",
                 colorLight: isDark ? "#1C1C1E" : "#FFFFFF",
                 correctLevel: QRCode.CorrectLevel.H
             });
-            
             document.getElementById('qrResult').classList.remove('hidden');
         };
 
@@ -2791,7 +3239,6 @@
         window.scanQRFromImage = function(event) {
             const file = event.target.files[0];
             if (!file) return;
-            
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
@@ -2801,37 +3248,28 @@
                     canvas.width = img.width;
                     canvas.height = img.height;
                     ctx.drawImage(img, 0, 0);
-                    
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    
                     if (window.jsQR) {
                         const code = window.jsQR(imageData.data, canvas.width, canvas.height);
-                        
                         if (code) {
                             document.getElementById('scannedText').textContent = code.data;
                             document.getElementById('qrScanResult').style.display = 'block';
                             showToast('✅ تم قراءة QR Code بنجاح');
-                        } else {
-                            showToast('❌ لم يتم العثور على QR Code في الصورة');
-                        }
+                        } else { showToast('❌ لم يتم العثور على QR Code في الصورة'); }
                     } else {
                         loadJsQR().then(() => {
                             const code = window.jsQR(imageData.data, canvas.width, canvas.height);
-                            
                             if (code) {
                                 document.getElementById('scannedText').textContent = code.data;
                                 document.getElementById('qrScanResult').style.display = 'block';
                                 showToast('✅ تم قراءة QR Code بنجاح');
-                            } else {
-                                showToast('❌ لم يتم العثور على QR Code في الصورة');
-                            }
+                            } else { showToast('❌ لم يتم العثور على QR Code في الصورة'); }
                         });
                     }
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
-            
             event.target.value = '';
         };
 
@@ -2849,191 +3287,96 @@
         };
 
         window.deploySite = async function() {
-            if (!currentUser) {
-                showToast('يجب تسجيل الدخول أولاً');
-                return;
-            }
-
+            if (!currentUser) { showToast('يجب تسجيل الدخول أولاً'); return; }
             const projectName = document.getElementById('projectName').value.trim();
             const siteDescription = document.getElementById('siteDescription').value.trim();
             const siteThumbnail = document.getElementById('siteThumbnail').value.trim();
             let customSlug = document.getElementById('customSiteSlug').value.trim().toLowerCase();
             const htmlCode = document.getElementById('htmlCode').value;
-
-            if (!projectName) {
-                showToast('أدخل اسم المشروع');
-                return;
-            }
-
-            if (!htmlCode) {
-                showToast('أدخل كود HTML');
-                return;
-            }
-
+            if (!projectName) { showToast('أدخل اسم المشروع'); return; }
+            if (!htmlCode) { showToast('أدخل كود HTML'); return; }
             const btn = document.getElementById('deployBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
-
             try {
                 if (customSlug) {
                     customSlug = customSlug.replace(/[^a-z0-9-_]/g, '');
-                    
-                    if (customSlug.length < 3) {
-                        showToast('الرابط المخصص يجب أن يكون 3 أحرف على الأقل');
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-rocket"></i> رفع ونشر';
-                        return;
-                    }
-                    
+                    if (customSlug.length < 3) { showToast('الرابط المخصص يجب أن يكون 3 أحرف على الأقل'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket"></i> رفع ونشر'; return; }
                     const slugSnap = await get(ref(db, 'hosted_sites_slugs/' + customSlug));
-                    if (slugSnap.exists()) {
-                        showToast('الرابط المخصص مستخدم، اختر رابطاً آخر');
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-rocket"></i> رفع ونشر';
-                        return;
-                    }
-                } else {
-                    customSlug = 'site_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4);
-                }
-
+                    if (slugSnap.exists()) { showToast('الرابط المخصص مستخدم، اختر رابطاً آخر'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket"></i> رفع ونشر'; return; }
+                } else { customSlug = 'site_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4); }
                 const projectId = 'site_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-                
                 const siteData = {
-                    id: projectId,
-                    name: projectName,
-                    description: siteDescription || 'موقع مميز على منصة elgoharyX',
-                    thumbnail: siteThumbnail || null,
-                    slug: customSlug,
-                    code: htmlCode,
-                    created_at: new Date().toISOString(),
-                    created_by: currentUser.id,
-                    created_by_name: currentUser.name,
-                    views: 0,
-                    likes: 0,
-                    featured: false,
-                    avgRating: 0,
-                    ratings: {}
+                    id: projectId, name: projectName, description: siteDescription || 'موقع مميز على منصة elgoharyX',
+                    thumbnail: siteThumbnail || null, slug: customSlug, code: htmlCode,
+                    created_at: new Date().toISOString(), created_by: currentUser.id, created_by_name: currentUser.name,
+                    views: 0, likes: 0, featured: false, avgRating: 0, ratings: {}
                 };
-
                 await set(ref(db, 'hosted_sites/' + projectId), siteData);
                 await set(ref(db, 'hosted_sites_slugs/' + customSlug), projectId);
-                
-                await set(ref(db, 'user_sites/' + currentUser.id + '/' + projectId), {
-                    name: projectName,
-                    slug: customSlug,
-                    created_at: new Date().toISOString()
-                });
-
+                await set(ref(db, 'user_sites/' + currentUser.id + '/' + projectId), { name: projectName, slug: customSlug, created_at: new Date().toISOString() });
                 const siteUrl = `${location.origin}${location.pathname}?site=${customSlug}`;
                 currentSiteUrl = siteUrl;
-                
                 document.getElementById('siteUrl').textContent = siteUrl;
                 document.getElementById('siteUrl').href = siteUrl;
-                
                 document.getElementById('deployResult').classList.remove('hidden');
-                
                 document.getElementById('projectName').value = '';
                 document.getElementById('siteDescription').value = '';
                 document.getElementById('siteThumbnail').value = '';
                 document.getElementById('customSiteSlug').value = '';
-                
                 showToast('✅ تم رفع الموقع بنجاح!');
-                
                 loadSites();
                 loadAllSites();
-            } catch (e) {
-                showToast('خطأ في الرفع: ' + e.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-rocket"></i> رفع ونشر';
-            }
+            } catch (e) { showToast('خطأ في الرفع: ' + e.message); }
+            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket"></i> رفع ونشر'; }
         };
 
-        window.copySiteUrl = function() {
-            const url = document.getElementById('siteUrl').textContent;
-            navigator.clipboard?.writeText(url).then(() => showToast('📋 تم نسخ الرابط'));
-        };
-
-        window.openSiteInNewTab = function() {
-            window.open(currentSiteUrl, '_blank');
-        };
+        window.copySiteUrl = function() { navigator.clipboard?.writeText(document.getElementById('siteUrl').textContent).then(() => showToast('📋 تم نسخ الرابط')); };
+        window.openSiteInNewTab = function() { window.open(currentSiteUrl, '_blank'); };
 
         function loadSites() {
             if (!currentUser) return;
-            
             const sitesRef = ref(db, 'user_sites/' + currentUser.id);
             onValue(sitesRef, (snapshot) => {
                 document.getElementById('sitesLoading').style.display = 'none';
                 const listDiv = document.getElementById('sitesList');
                 listDiv.innerHTML = '';
-
                 if (snapshot.exists()) {
                     const sites = snapshot.val();
                     const siteIds = Object.keys(sites);
-                    
-                    if (siteIds.length === 0) {
-                        document.getElementById('sitesEmptyState').classList.remove('hidden');
-                        return;
-                    }
-                    
+                    if (siteIds.length === 0) { document.getElementById('sitesEmptyState').classList.remove('hidden'); return; }
                     document.getElementById('sitesEmptyState').classList.add('hidden');
-                    
                     siteIds.forEach((siteId, index) => {
                         const site = sites[siteId];
-                        const siteUrl = `${location.origin}${location.pathname}?site=${site.slug}`;
                         const createdAt = new Date(site.created_at).toLocaleDateString('ar-EG');
-                        
                         const div = document.createElement('div');
                         div.className = 'site-item';
                         div.style.animationDelay = (index * 0.05) + 's';
                         div.innerHTML = `
                             <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="site-icon">
-                                    <i class="fas fa-globe"></i>
-                                </div>
+                                <div class="site-icon"><i class="fas fa-globe"></i></div>
                                 <div class="site-info">
                                     <div class="site-name">${site.name}</div>
-                                    <div class="site-details">
-                                        <span class="dir-ltr" style="font-family: monospace;">/${site.slug}</span>
-                                        <span><i class="far fa-calendar"></i> ${createdAt}</span>
-                                    </div>
+                                    <div class="site-details"><span class="dir-ltr" style="font-family: monospace;">/${site.slug}</span><span><i class="far fa-calendar"></i> ${createdAt}</span></div>
                                 </div>
                             </div>
                             <div class="site-actions" style="margin-top: 12px; justify-content: flex-end;">
-                                <div class="site-action-btn copy" onclick="copySiteUrlFromList('${site.slug}')" title="نسخ الرابط">
-                                    <i class="far fa-copy"></i>
-                                </div>
-                                <div class="site-action-btn open" onclick="openSiteFromList('${site.slug}')" title="فتح الموقع">
-                                    <i class="fas fa-external-link-alt"></i>
-                                </div>
-                                <div class="site-action-btn" onclick="showSiteDashboard('${siteId}')" title="لوحة التحكم" style="color: var(--blue);">
-                                    <i class="fas fa-chart-line"></i>
-                                </div>
-                                <div class="site-action-btn delete" onclick="deleteSite('${siteId}', '${site.slug}')" title="حذف">
-                                    <i class="far fa-trash-alt"></i>
-                                </div>
+                                <div class="site-action-btn copy" onclick="copySiteUrlFromList('${site.slug}')" title="نسخ الرابط"><i class="far fa-copy"></i></div>
+                                <div class="site-action-btn open" onclick="openSiteFromList('${site.slug}')" title="فتح الموقع"><i class="fas fa-external-link-alt"></i></div>
+                                <div class="site-action-btn" onclick="showSiteDashboard('${siteId}')" title="لوحة التحكم" style="color: var(--blue);"><i class="fas fa-chart-line"></i></div>
+                                <div class="site-action-btn delete" onclick="deleteSite('${siteId}', '${site.slug}')" title="حذف"><i class="far fa-trash-alt"></i></div>
                             </div>
                         `;
                         listDiv.appendChild(div);
                     });
-                } else {
-                    document.getElementById('sitesEmptyState').classList.remove('hidden');
-                }
+                } else { document.getElementById('sitesEmptyState').classList.remove('hidden'); }
             });
         }
 
-        window.copySiteUrlFromList = function(slug) {
-            const url = `${location.origin}${location.pathname}?site=${slug}`;
-            navigator.clipboard?.writeText(url).then(() => showToast('📋 تم نسخ الرابط'));
-        };
-
-        window.openSiteFromList = function(slug) {
-            window.open(`${location.origin}${location.pathname}?site=${slug}`, '_blank');
-        };
-
+        window.copySiteUrlFromList = function(slug) { navigator.clipboard?.writeText(`${location.origin}${location.pathname}?site=${slug}`).then(() => showToast('📋 تم نسخ الرابط')); };
+        window.openSiteFromList = function(slug) { window.open(`${location.origin}${location.pathname}?site=${slug}`, '_blank'); };
         window.deleteSite = async function(siteId, slug) {
             if (!confirm('هل أنت متأكد من حذف هذا الموقع؟')) return;
-            
             try {
                 await remove(ref(db, 'hosted_sites/' + siteId));
                 await remove(ref(db, 'hosted_sites_slugs/' + slug));
@@ -3041,9 +3384,7 @@
                 showToast('🗑️ تم حذف الموقع');
                 loadSites();
                 loadAllSites();
-            } catch (e) {
-                showToast('فشل الحذف');
-            }
+            } catch(e) { showToast('فشل الحذف'); }
         };
 
         async function viewSite(slug) {
@@ -3053,394 +3394,171 @@
             document.getElementById('forumScreen')?.classList.add('hidden');
             document.getElementById('browserScreen')?.classList.add('hidden');
             document.getElementById('redirectScreen')?.classList.remove('hidden');
-            
             try {
                 const slugSnap = await get(ref(db, 'hosted_sites_slugs/' + slug));
-                if (!slugSnap.exists()) {
-                    document.getElementById('redirectStatus').textContent = 'الموقع غير موجود';
-                    setTimeout(() => location.href = location.origin + location.pathname, 2000);
-                    return;
-                }
-                
+                if (!slugSnap.exists()) { document.getElementById('redirectStatus').textContent = 'الموقع غير موجود'; setTimeout(() => location.href = location.origin + location.pathname, 2000); return; }
                 const projectId = slugSnap.val();
                 const snap = await get(ref(db, 'hosted_sites/' + projectId));
-                
-                if (snap.exists()) {
-                    const siteData = snap.val();
-                    document.write(siteData.code);
-                    document.close();
-                } else {
-                    document.getElementById('redirectStatus').textContent = 'الموقع غير موجود';
-                    setTimeout(() => location.href = location.origin + location.pathname, 2000);
-                }
-            } catch (e) {
-                document.getElementById('redirectStatus').textContent = 'خطأ في تحميل الموقع';
-                setTimeout(() => location.href = location.origin + location.pathname, 2000);
-            }
+                if (snap.exists()) { const siteData = snap.val(); document.write(siteData.code); document.close(); }
+                else { document.getElementById('redirectStatus').textContent = 'الموقع غير موجود'; setTimeout(() => location.href = location.origin + location.pathname, 2000); }
+            } catch(e) { document.getElementById('redirectStatus').textContent = 'خطأ في تحميل الموقع'; setTimeout(() => location.href = location.origin + location.pathname, 2000); }
         }
 
         function loadDevices() {
             if (!currentUser) return;
-            
             const devicesRef = ref(db, `users/${currentUser.id}/devices`);
             onValue(devicesRef, (snapshot) => {
                 document.getElementById('devicesLoading').style.display = 'none';
                 const listDiv = document.getElementById('devicesList');
                 listDiv.innerHTML = '';
-
                 if (snapshot.exists()) {
                     const devices = snapshot.val();
                     const deviceIds = Object.keys(devices);
-                    
-                    if (deviceIds.length === 0) {
-                        document.getElementById('devicesEmptyState').classList.remove('hidden');
-                        return;
-                    }
-                    
+                    if (deviceIds.length === 0) { document.getElementById('devicesEmptyState').classList.remove('hidden'); return; }
                     document.getElementById('devicesEmptyState').classList.add('hidden');
-                    
                     deviceIds.forEach((deviceId, index) => {
                         const device = devices[deviceId];
                         const isCurrent = deviceId === currentDeviceId;
-                        const lastActive = new Date(device.lastActive).toLocaleString('ar-EG', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            day: '2-digit',
-                            month: '2-digit'
-                        });
-                        
+                        const lastActive = new Date(device.lastActive).toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
                         const div = document.createElement('div');
                         div.className = 'device-item';
                         div.style.animationDelay = (index * 0.05) + 's';
                         div.innerHTML = `
-                            <div class="device-icon">
-                                <i class="${getDeviceIcon(device.deviceType)}"></i>
-                            </div>
+                            <div class="device-icon"><i class="${getDeviceIcon(device.deviceType)}"></i></div>
                             <div class="device-info">
-                                <div class="device-name">
-                                    ${device.deviceName || getDeviceTypeName(device.deviceType)}
-                                    ${isCurrent ? '<span class="device-badge current" style="margin-right: 8px;">الحالي</span>' : ''}
-                                </div>
-                                <div class="device-details">
-                                    <span><i class="fas fa-map-marker-alt"></i> ${device.location || 'غير معروف'}</span>
-                                    <span><i class="fas fa-clock"></i> ${lastActive}</span>
-                                </div>
+                                <div class="device-name">${device.deviceName || getDeviceTypeName(device.deviceType)}${isCurrent ? '<span class="device-badge current" style="margin-right: 8px;">الحالي</span>' : ''}</div>
+                                <div class="device-details"><span><i class="fas fa-map-marker-alt"></i> ${device.location || 'غير معروف'}</span><span><i class="fas fa-clock"></i> ${lastActive}</span></div>
                             </div>
                             <div class="device-actions">
-                                <div class="device-action-btn edit" onclick="editDeviceName('${deviceId}', '${device.deviceName || ''}')">
-                                    <i class="fas fa-pen"></i>
-                                </div>
-                                ${!isCurrent ? `
-                                <div class="device-action-btn delete" onclick="deleteDevice('${deviceId}')">
-                                    <i class="fas fa-trash-alt"></i>
-                                </div>
-                                ` : ''}
+                                <div class="device-action-btn edit" onclick="editDeviceName('${deviceId}', '${device.deviceName || ''}')"><i class="fas fa-pen"></i></div>
+                                ${!isCurrent ? `<div class="device-action-btn delete" onclick="deleteDevice('${deviceId}')"><i class="fas fa-trash-alt"></i></div>` : ''}
                             </div>
                         `;
                         listDiv.appendChild(div);
                     });
-                } else {
-                    document.getElementById('devicesEmptyState').classList.remove('hidden');
-                }
+                } else { document.getElementById('devicesEmptyState').classList.remove('hidden'); }
             });
         }
 
-        window.editDeviceName = function(deviceId, currentName) {
-            editingDeviceId = deviceId;
-            document.getElementById('editDeviceNameInput').value = currentName;
-            document.getElementById('editDeviceModal').classList.add('active');
-        };
-
-        window.closeEditDeviceModal = function() {
-            document.getElementById('editDeviceModal').classList.remove('active');
-            editingDeviceId = null;
-        };
-
+        window.editDeviceName = function(deviceId, currentName) { editingDeviceId = deviceId; document.getElementById('editDeviceNameInput').value = currentName; document.getElementById('editDeviceModal').classList.add('active'); };
+        window.closeEditDeviceModal = function() { document.getElementById('editDeviceModal').classList.remove('active'); editingDeviceId = null; };
         window.saveDeviceName = async function() {
             const newName = document.getElementById('editDeviceNameInput').value.trim();
-            if (!newName) {
-                showToast('أدخل اسم الجهاز');
-                return;
-            }
-            
-            try {
-                await update(ref(db, `users/${currentUser.id}/devices/${editingDeviceId}`), {
-                    deviceName: newName
-                });
-                showToast('✅ تم تحديث اسم الجهاز');
-                closeEditDeviceModal();
-            } catch (e) {
-                showToast('فشل التحديث');
-            }
+            if (!newName) { showToast('أدخل اسم الجهاز'); return; }
+            try { await update(ref(db, `users/${currentUser.id}/devices/${editingDeviceId}`), { deviceName: newName }); showToast('✅ تم تحديث اسم الجهاز'); closeEditDeviceModal(); }
+            catch(e) { showToast('فشل التحديث'); }
         };
-
         window.deleteDevice = async function(deviceId) {
             if (!confirm('هل أنت متأكد من حذف هذا الجهاز؟ لن يتمكن من الوصول للحساب.')) return;
-            
-            try {
-                await remove(ref(db, `users/${currentUser.id}/devices/${deviceId}`));
-                showToast('🗑️ تم حذف الجهاز');
-            } catch (e) {
-                showToast('فشل الحذف');
-            }
+            try { await remove(ref(db, `users/${currentUser.id}/devices/${deviceId}`)); showToast('🗑️ تم حذف الجهاز'); }
+            catch(e) { showToast('فشل الحذف'); }
         };
 
         window.startQRScanner = async function() {
             const scannerDiv = document.getElementById('qrScanner');
             const video = document.getElementById('qrVideo');
             const status = document.getElementById('scanStatus');
-            
             scannerDiv.style.display = 'block';
             status.innerHTML = '<i class="fas fa-camera"></i> جاري تشغيل الكاميرا...';
-            
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment' }
-                });
-                
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 video.srcObject = stream;
                 await video.play();
-                
                 status.innerHTML = '<i class="fas fa-qrcode"></i> جاري البحث عن QR Code...';
-                
                 if ('BarcodeDetector' in window) {
                     const detector = new BarcodeDetector({ formats: ['qr_code'] });
-                    
                     const scan = async () => {
                         if (scannerDiv.style.display === 'none') return;
-                        
-                        try {
-                            const barcodes = await detector.detect(video);
-                            if (barcodes.length > 0) {
-                                const data = barcodes[0].rawValue;
-                                if (data && data.includes('session:')) {
-                                    const sessionId = data.split('session:')[1];
-                                    stopQRScanner();
-                                    linkDeviceBySession(sessionId);
-                                    return;
-                                }
-                            }
-                        } catch (e) {}
-                        
+                        try { const barcodes = await detector.detect(video); if (barcodes.length > 0) { const data = barcodes[0].rawValue; if (data && data.includes('session:')) { const sessionId = data.split('session:')[1]; stopQRScanner(); linkDeviceBySession(sessionId); return; } } } catch(e) {}
                         requestAnimationFrame(scan);
                     };
-                    
                     scan();
-                } else {
-                    await loadJsQR();
-                    scanWithJsQR(video);
-                }
-                
-            } catch (e) {
-                status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> تعذر الوصول للكاميرا';
-                console.error(e);
-            }
+                } else { await loadJsQR(); scanWithJsQR(video); }
+            } catch(e) { status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> تعذر الوصول للكاميرا'; console.error(e); }
         };
 
-        function loadJsQR() {
-            return new Promise((resolve) => {
-                if (window.jsQR) { resolve(); return; }
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
-                script.onload = resolve;
-                document.head.appendChild(script);
-            });
-        }
-
+        function loadJsQR() { return new Promise((resolve) => { if (window.jsQR) { resolve(); return; } const script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'; script.onload = resolve; document.head.appendChild(script); }); }
         function scanWithJsQR(video) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             const status = document.getElementById('scanStatus');
             const scannerDiv = document.getElementById('qrScanner');
-            
             const scan = () => {
                 if (scannerDiv.style.display === 'none') return;
-                
                 if (video.readyState === video.HAVE_ENOUGH_DATA) {
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
-                    
                     if (canvas.width > 0) {
                         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        
                         if (window.jsQR) {
                             const code = window.jsQR(imageData.data, canvas.width, canvas.height);
-                            
                             if (code && code.data) {
                                 const data = code.data;
                                 status.innerHTML = '<i class="fas fa-check-circle"></i> تم العثور على كود!';
-                                
-                                if (data.includes('session:')) {
-                                    const sessionId = data.split('session:')[1];
-                                    stopQRScanner();
-                                    linkDeviceBySession(sessionId);
-                                    return;
-                                }
+                                if (data.includes('session:')) { const sessionId = data.split('session:')[1]; stopQRScanner(); linkDeviceBySession(sessionId); return; }
                             }
                         }
                     }
                 }
-                
                 requestAnimationFrame(scan);
             };
-            
             requestAnimationFrame(scan);
         }
 
-        window.stopQRScanner = function() {
-            const video = document.getElementById('qrVideo');
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(t => t.stop());
-                video.srcObject = null;
-            }
-            document.getElementById('qrScanner').style.display = 'none';
-        };
-
-        window.linkBySessionCode = function() {
-            const code = document.getElementById('sessionCodeInput').value.trim().toUpperCase();
-            if (!code) {
-                showToast('أدخل كود الجلسة');
-                return;
-            }
-            linkDeviceBySession(code);
-        };
-
+        window.stopQRScanner = function() { const video = document.getElementById('qrVideo'); if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; } document.getElementById('qrScanner').style.display = 'none'; };
+        window.linkBySessionCode = function() { const code = document.getElementById('sessionCodeInput').value.trim().toUpperCase(); if (!code) { showToast('أدخل كود الجلسة'); return; } linkDeviceBySession(code); };
         async function linkDeviceBySession(sessionId) {
-            if (!currentUser) {
-                showToast('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
+            if (!currentUser) { showToast('يجب تسجيل الدخول أولاً'); return; }
             try {
                 const sessionRef = ref(db, 'pc_sessions/' + sessionId);
                 const snap = await get(sessionRef);
-                
-                if (!snap.exists()) {
-                    document.getElementById('linkError').textContent = 'كود الجلسة غير صالح';
-                    return;
-                }
-                
+                if (!snap.exists()) { document.getElementById('linkError').textContent = 'كود الجلسة غير صالح'; return; }
                 const session = snap.val();
-                if (session.status !== 'waiting') {
-                    document.getElementById('linkError').textContent = 'هذا الكود مستخدم بالفعل';
-                    return;
-                }
-                
-                await update(sessionRef, {
-                    status: 'approved',
-                    userId: currentUser.id,
-                    userName: currentUser.name,
-                    approvedAt: Date.now()
-                });
-                
-                showToast('✅ تم ربط الجهاز بنجاح!');
-                hideLinkDevice();
-                document.getElementById('sessionCodeInput').value = '';
-                document.getElementById('linkError').textContent = '';
-                
-            } catch (e) {
-                document.getElementById('linkError').textContent = 'خطأ في الربط';
-            }
+                if (session.status !== 'waiting') { document.getElementById('linkError').textContent = 'هذا الكود مستخدم بالفعل'; return; }
+                await update(sessionRef, { status: 'approved', userId: currentUser.id, userName: currentUser.name, approvedAt: Date.now() });
+                showToast('✅ تم ربط الجهاز بنجاح!'); hideLinkDevice(); document.getElementById('sessionCodeInput').value = ''; document.getElementById('linkError').textContent = '';
+            } catch(e) { document.getElementById('linkError').textContent = 'خطأ في الربط'; }
         }
 
-        function generateSessionCode() {
-            return Math.random().toString(36).substring(2, 8).toUpperCase();
-        }
-
+        function generateSessionCode() { return Math.random().toString(36).substring(2, 8).toUpperCase(); }
         function startPCSession() {
             const sessionId = generateSessionCode();
-            
             document.getElementById('pcSessionId').textContent = 'الكود: ' + sessionId;
-            
             const qrDiv = document.getElementById('pcQrcode');
             qrDiv.innerHTML = '';
-            new QRCode(qrDiv, { 
-                text: 'elgoharyX_session:' + sessionId, 
-                width: 220, 
-                height: 220,
-                colorDark: "#000000",
-                colorLight: "#ffffff"
-            });
-            
+            new QRCode(qrDiv, { text: 'elgoharyX_session:' + sessionId, width: 220, height: 220, colorDark: "#000000", colorLight: "#ffffff" });
             currentSessionRef = ref(db, 'pc_sessions/' + sessionId);
-            set(currentSessionRef, {
-                sessionId,
-                status: 'waiting',
-                createdAt: Date.now()
-            });
-            
+            set(currentSessionRef, { sessionId, status: 'waiting', createdAt: Date.now() });
             onDisconnect(currentSessionRef).remove();
-            
             if (sessionCheckInterval) clearInterval(sessionCheckInterval);
-            
             sessionCheckInterval = setInterval(async () => {
                 try {
                     const snap = await get(currentSessionRef);
-                    if (!snap.exists()) {
-                        clearInterval(sessionCheckInterval);
-                        document.getElementById('pcWaitingStatus').innerHTML = '<i class="fas fa-times-circle"></i> انتهت الجلسة';
-                        return;
-                    }
-                    
+                    if (!snap.exists()) { clearInterval(sessionCheckInterval); document.getElementById('pcWaitingStatus').innerHTML = '<i class="fas fa-times-circle"></i> انتهت الجلسة'; return; }
                     const data = snap.val();
                     if (data.status === 'approved' && data.userId) {
                         clearInterval(sessionCheckInterval);
                         document.getElementById('pcWaitingStatus').innerHTML = '<i class="fas fa-check-circle"></i> تم الربط!';
-                        
                         const userSnap = await get(ref(db, 'users/' + data.userId));
                         if (userSnap.exists()) {
                             const userData = userSnap.val();
-                            currentUser = {
-                                id: userData.id,
-                                name: userData.name,
-                                email: userData.email,
-                                avatar: userData.avatar || LOGO_URL
-                            };
+                            currentUser = { id: userData.id, name: userData.name, email: userData.email, avatar: userData.avatar || LOGO_URL };
                             localStorage.setItem('user', JSON.stringify(currentUser));
                             await remove(currentSessionRef);
                             showMainScreen();
                         }
                     }
-                } catch (e) {}
+                } catch(e) {}
             }, 2000);
         }
 
-        window.refreshPCSession = function() {
-            if (currentSessionRef) {
-                remove(currentSessionRef);
-            }
-            if (sessionCheckInterval) {
-                clearInterval(sessionCheckInterval);
-            }
-            startPCSession();
-        };
-
+        window.refreshPCSession = function() { if (currentSessionRef) { remove(currentSessionRef); } if (sessionCheckInterval) { clearInterval(sessionCheckInterval); } startPCSession(); };
         window.logout = function() {
-            currentUser = null;
-            localStorage.removeItem('user');
-            toggleSidebar();
-            
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('mainScreen').classList.add('hidden');
-            document.getElementById('linkDeviceScreen').classList.add('hidden');
-            document.getElementById('codeHostingScreen').classList.add('hidden');
-            document.getElementById('qrGeneratorScreen').classList.add('hidden');
-            document.getElementById('forumScreen').classList.add('hidden');
-            document.getElementById('browserScreen').classList.add('hidden');
-            document.getElementById('redirectScreen').classList.add('hidden');
-            document.getElementById('chatScreen').classList.add('hidden');
-            document.getElementById('siteDashboardScreen').classList.add('hidden');
-            
-            if (isPC) {
-                document.getElementById('pcAuthContent').classList.remove('hidden');
-                document.getElementById('mobileAuthContent').classList.add('hidden');
-                document.getElementById('authScreen').classList.remove('hidden');
-                refreshPCSession();
-            } else {
-                document.getElementById('authScreen').classList.remove('hidden');
-            }
-            
+            currentUser = null; localStorage.removeItem('user'); toggleSidebar();
+            document.getElementById('authScreen').classList.add('hidden'); document.getElementById('mainScreen').classList.add('hidden'); document.getElementById('linkDeviceScreen').classList.add('hidden'); document.getElementById('codeHostingScreen').classList.add('hidden'); document.getElementById('qrGeneratorScreen').classList.add('hidden'); document.getElementById('forumScreen').classList.add('hidden'); document.getElementById('browserScreen').classList.add('hidden'); document.getElementById('redirectScreen').classList.add('hidden'); document.getElementById('chatScreen').classList.add('hidden'); document.getElementById('siteDashboardScreen').classList.add('hidden'); closeConversationsDrawer();
+            if (isPC) { document.getElementById('pcAuthContent').classList.remove('hidden'); document.getElementById('mobileAuthContent').classList.add('hidden'); document.getElementById('authScreen').classList.remove('hidden'); refreshPCSession(); }
+            else { document.getElementById('authScreen').classList.remove('hidden'); }
             showToast('👋 تم تسجيل الخروج');
         };
 
@@ -3455,252 +3573,96 @@
             document.getElementById('chatScreen').classList.add('hidden');
             document.getElementById('siteDashboardScreen').classList.add('hidden');
             document.getElementById('mainScreen').classList.remove('hidden');
-            
             document.getElementById('displayName').textContent = currentUser.name;
             document.getElementById('displayEmail').textContent = currentUser.email;
             document.getElementById('sidebarName').textContent = currentUser.name;
             document.getElementById('sidebarEmail').textContent = currentUser.email;
             document.getElementById('sidebarAvatar').src = currentUser.avatar || LOGO_URL;
-            
-            loadDevices();
-            loadSites();
-            loadLinks();
+            document.getElementById('profileAvatar').src = currentUser.avatar || LOGO_URL;
+            loadDevices(); loadSites(); loadLinks(); loadFriends();
         }
 
         function loadLinks() {
             if (!currentUser) return;
-            
             const linksRef = ref(db, 'user_links/' + currentUser.id);
             onValue(linksRef, (snapshot) => {
                 document.getElementById('sidebarLoading').style.display = 'none';
                 const listDiv = document.getElementById('linksList');
                 listDiv.innerHTML = '';
-
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     const slugs = Object.keys(data);
-                    
-                    if (slugs.length === 0) {
-                        document.getElementById('emptyState').classList.remove('hidden');
-                        return;
-                    }
-                    
+                    if (slugs.length === 0) { document.getElementById('emptyState').classList.remove('hidden'); return; }
                     document.getElementById('emptyState').classList.add('hidden');
-                    
                     slugs.forEach((slug, index) => {
                         const item = data[slug];
                         const div = document.createElement('div');
                         div.className = 'link-item';
                         div.style.animationDelay = (index * 0.05) + 's';
-                        div.innerHTML = `
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                <div class="link-icon">
-                                    <i class="fas fa-link"></i>
-                                </div>
-                                <span class="dir-ltr" style="font-weight: 600;">${slug}</span>
-                            </div>
-                            <div class="dir-ltr" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">${item.target}</div>
-                            <div class="link-actions">
-                                <div class="link-btn btn-copy" onclick="copySidebarLink('${slug}')">
-                                    <i class="far fa-copy"></i>
-                                    نسخ
-                                </div>
-                                <div class="link-btn btn-edit" onclick="editLink('${slug}', '${item.target}')">
-                                    <i class="far fa-edit"></i>
-                                    تعديل
-                                </div>
-                                <div class="link-btn btn-delete" onclick="deleteLink('${slug}')">
-                                    <i class="far fa-trash-alt"></i>
-                                    حذف
-                                </div>
-                            </div>
-                        `;
+                        div.innerHTML = `<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;"><div class="link-icon"><i class="fas fa-link"></i></div><span class="dir-ltr" style="font-weight: 600;">${slug}</span></div><div class="dir-ltr" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">${item.target}</div><div class="link-actions"><div class="link-btn btn-copy" onclick="copySidebarLink('${slug}')"><i class="far fa-copy"></i> نسخ</div><div class="link-btn btn-edit" onclick="editLink('${slug}', '${item.target}')"><i class="far fa-edit"></i> تعديل</div><div class="link-btn btn-delete" onclick="deleteLink('${slug}')"><i class="far fa-trash-alt"></i> حذف</div></div>`;
                         listDiv.appendChild(div);
                     });
-                } else {
-                    document.getElementById('emptyState').classList.remove('hidden');
-                }
+                } else { document.getElementById('emptyState').classList.remove('hidden'); }
             });
         }
 
-        window.copySidebarLink = function(slug) {
-            const url = `${location.origin}${location.pathname}?${slug}`;
-            navigator.clipboard?.writeText(url).then(() => showToast('📋 تم النسخ'));
-        };
-
-        window.deleteLink = async function(slug) {
-            if (!confirm('هل أنت متأكد من حذف الرابط؟')) return;
-            
-            try {
-                await remove(ref(db, 'links/' + slug));
-                await remove(ref(db, 'user_links/' + currentUser.id + '/' + slug));
-                showToast('🗑️ تم الحذف');
-            } catch (e) { showToast('فشل الحذف'); }
-        };
-
-        window.editLink = async function(slug, oldUrl) {
-            const newUrl = prompt('الرابط الجديد:', oldUrl);
-            if (!newUrl || newUrl === oldUrl) return;
-            try {
-                await update(ref(db, 'links/' + slug), { target: newUrl });
-                await update(ref(db, 'user_links/' + currentUser.id + '/' + slug), { target: newUrl });
-                showToast('✏️ تم التحديث');
-            } catch (e) { showToast('فشل التحديث'); }
-        };
-
-        window.toggleSidebar = function() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('overlay').classList.toggle('active');
-        };
-
-        window.copyLink = function() {
-            const link = document.getElementById('shortLink').innerText;
-            navigator.clipboard?.writeText(link).then(() => showToast('📋 تم النسخ'));
-        };
-
+        window.copySidebarLink = function(slug) { navigator.clipboard?.writeText(`${location.origin}${location.pathname}?${slug}`).then(() => showToast('📋 تم النسخ')); };
+        window.deleteLink = async function(slug) { if (!confirm('هل أنت متأكد من حذف الرابط؟')) return; try { await remove(ref(db, 'links/' + slug)); await remove(ref(db, 'user_links/' + currentUser.id + '/' + slug)); showToast('🗑️ تم الحذف'); } catch(e) { showToast('فشل الحذف'); } };
+        window.editLink = async function(slug, oldUrl) { const newUrl = prompt('الرابط الجديد:', oldUrl); if (!newUrl || newUrl === oldUrl) return; try { await update(ref(db, 'links/' + slug), { target: newUrl }); await update(ref(db, 'user_links/' + currentUser.id + '/' + slug), { target: newUrl }); showToast('✏️ تم التحديث'); } catch(e) { showToast('فشل التحديث'); } };
+        window.toggleSidebar = function() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); };
+        window.copyLink = function() { navigator.clipboard?.writeText(document.getElementById('shortLink').innerText).then(() => showToast('📋 تم النسخ')); };
         window.createLink = async function() {
             if (!currentUser) { showToast('سجل الدخول أولاً'); return; }
-
             const longUrl = document.getElementById('longUrl').value.trim();
             let customSlug = document.getElementById('customSlug').value.trim();
-            
             if (!longUrl) { showToast('أدخل الرابط'); return; }
-
             const btn = document.getElementById('shortenBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
-
             try {
-                if (!customSlug) {
-                    customSlug = Math.random().toString(36).substring(2, 8);
-                }
-                
+                if (!customSlug) customSlug = Math.random().toString(36).substring(2, 8);
                 const slugSnap = await get(ref(db, 'links/' + customSlug));
-                if (slugSnap.exists() && customSlug) {
-                    showToast('المعرف مستخدم، اختر معرفاً آخر');
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-scissors"></i> إنشاء رابط مختصر';
-                    return;
-                }
-
-                const data = { 
-                    target: longUrl, 
-                    created_at: new Date().toISOString(), 
-                    created_by: currentUser.id 
-                };
-                
-                await set(ref(db, 'links/' + customSlug), data);
-                await set(ref(db, 'user_links/' + currentUser.id + '/' + customSlug), { 
-                    target: longUrl, 
-                    created_at: new Date().toISOString() 
-                });
-
+                if (slugSnap.exists() && customSlug) { showToast('المعرف مستخدم، اختر معرفاً آخر'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-scissors"></i> إنشاء رابط مختصر'; return; }
+                await set(ref(db, 'links/' + customSlug), { target: longUrl, created_at: new Date().toISOString(), created_by: currentUser.id });
+                await set(ref(db, 'user_links/' + currentUser.id + '/' + customSlug), { target: longUrl, created_at: new Date().toISOString() });
                 const shortUrl = `${location.origin}${location.pathname}?${customSlug}`;
                 document.getElementById('shortLink').innerText = shortUrl;
                 document.getElementById('shortLink').href = shortUrl;
-                
-                const resultArea = document.getElementById('resultArea');
-                resultArea.classList.remove('hidden');
-
+                document.getElementById('resultArea').classList.remove('hidden');
                 document.getElementById('longUrl').value = '';
                 document.getElementById('customSlug').value = '';
                 showToast('✅ تم إنشاء الرابط');
-            } catch (e) {
-                showToast('خطأ: ' + e.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-scissors"></i> إنشاء رابط مختصر';
-            }
+            } catch(e) { showToast('خطأ: ' + e.message); }
+            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-scissors"></i> إنشاء رابط مختصر'; }
         };
 
         async function redirect() {
             const params = new URLSearchParams(location.search);
             const slug = Array.from(params.keys())[0];
             const siteSlug = params.get('site');
-            
-            if (location.search.includes('?site=') || siteSlug) {
-                const actualSiteSlug = siteSlug || location.search.substring(6);
-                await viewSite(actualSiteSlug);
-                return;
-            }
-            
+            if (location.search.includes('?site=') || siteSlug) { const actualSiteSlug = siteSlug || location.search.substring(6); await viewSite(actualSiteSlug); return; }
             if (!slug) return;
-
-            document.getElementById('authScreen')?.classList.add('hidden');
-            document.getElementById('mainScreen')?.classList.add('hidden');
-            document.getElementById('linkDeviceScreen')?.classList.add('hidden');
-            document.getElementById('codeHostingScreen')?.classList.add('hidden');
-            document.getElementById('qrGeneratorScreen')?.classList.add('hidden');
-            document.getElementById('forumScreen')?.classList.add('hidden');
-            document.getElementById('browserScreen')?.classList.add('hidden');
-            document.getElementById('redirectScreen')?.classList.remove('hidden');
-
+            document.getElementById('authScreen')?.classList.add('hidden'); document.getElementById('mainScreen')?.classList.add('hidden'); document.getElementById('linkDeviceScreen')?.classList.add('hidden'); document.getElementById('codeHostingScreen')?.classList.add('hidden'); document.getElementById('qrGeneratorScreen')?.classList.add('hidden'); document.getElementById('forumScreen')?.classList.add('hidden'); document.getElementById('browserScreen')?.classList.add('hidden'); document.getElementById('redirectScreen')?.classList.remove('hidden');
             try {
                 const snap = await get(ref(db, 'links/' + slug));
-                if (snap.exists()) {
-                    document.getElementById('redirectStatus').textContent = 'جاري التوجيه...';
-                    setTimeout(() => location.replace(snap.val().target), 500);
-                } else {
-                    document.getElementById('redirectStatus').textContent = 'الرابط غير موجود';
-                    setTimeout(() => location.href = location.origin + location.pathname, 2000);
-                }
-            } catch (e) {
-                document.getElementById('redirectStatus').textContent = 'خطأ';
-                setTimeout(() => location.href = location.origin + location.pathname, 2000);
-            }
+                if (snap.exists()) { document.getElementById('redirectStatus').textContent = 'جاري التوجيه...'; setTimeout(() => location.replace(snap.val().target), 500); }
+                else { document.getElementById('redirectStatus').textContent = 'الرابط غير موجود'; setTimeout(() => location.href = location.origin + location.pathname, 2000); }
+            } catch(e) { document.getElementById('redirectStatus').textContent = 'خطأ'; setTimeout(() => location.href = location.origin + location.pathname, 2000); }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                document.getElementById('themeIcon').innerHTML = '<i class="fas fa-sun"></i>';
-                document.getElementById('themeLabel').textContent = 'الوضع النهاري';
-                document.getElementById('themeToggleIcon').innerHTML = '<i class="fas fa-sun"></i>';
-                document.getElementById('themeToggleLabel').textContent = 'الوضع النهاري';
-            }
-            
-            if (location.search.length > 1) { 
-                redirect(); 
-                return;
-            }
-
+            if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); document.getElementById('themeIcon').innerHTML = '<i class="fas fa-sun"></i>'; document.getElementById('themeLabel').textContent = 'الوضع النهاري'; document.getElementById('themeToggleIcon').innerHTML = '<i class="fas fa-sun"></i>'; document.getElementById('themeToggleLabel').textContent = 'الوضع النهاري'; }
+            if (location.search.length > 1) { redirect(); return; }
             isPC = detectPC();
-            
-            if (isPC) {
-                document.getElementById('mainContainer').classList.add('container-pc');
-                document.getElementById('pcAuthContent').classList.remove('hidden');
-                document.getElementById('mobileAuthContent').classList.add('hidden');
-                document.getElementById('linkDeviceMenuItem').classList.add('hidden');
-                startPCSession();
-            } else {
-                document.getElementById('pcAuthContent').classList.add('hidden');
-                document.getElementById('mobileAuthContent').classList.remove('hidden');
-                document.getElementById('linkDeviceMenuItem').classList.remove('hidden');
-            }
-
+            if (isPC) { document.getElementById('mainContainer').classList.add('container-pc'); document.getElementById('pcAuthContent').classList.remove('hidden'); document.getElementById('mobileAuthContent').classList.add('hidden'); document.getElementById('linkDeviceMenuItem').classList.add('hidden'); startPCSession(); }
+            else { document.getElementById('pcAuthContent').classList.add('hidden'); document.getElementById('mobileAuthContent').classList.remove('hidden'); document.getElementById('linkDeviceMenuItem').classList.remove('hidden'); }
             const saved = localStorage.getItem('user');
-            if (saved) {
-                try {
-                    currentUser = JSON.parse(saved);
-                    if (!currentUser.avatar) currentUser.avatar = LOGO_URL;
-                    showMainScreen();
-                } catch (e) { 
-                    localStorage.removeItem('user'); 
-                }
-            }
-            
+            if (saved) { try { currentUser = JSON.parse(saved); if (!currentUser.avatar) currentUser.avatar = LOGO_URL; showMainScreen(); } catch(e) { localStorage.removeItem('user'); } }
             document.getElementById('redirectScreen').classList.add('hidden');
         });
 
-        window.addEventListener('beforeunload', () => {
-            if (sessionCheckInterval) clearInterval(sessionCheckInterval);
-            const video = document.getElementById('qrVideo');
-            if (video?.srcObject) {
-                video.srcObject.getTracks().forEach(t => t.stop());
-            }
-        });
+        window.addEventListener('beforeunload', () => { if (sessionCheckInterval) clearInterval(sessionCheckInterval); const video = document.getElementById('qrVideo'); if (video?.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); } });
     </script>
 </body>
 </html>
-```
