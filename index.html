@@ -1179,6 +1179,7 @@
             border-bottom: 0.5px solid var(--border-color);
             cursor: pointer;
             transition: background 0.2s;
+            position: relative;
         }
         .conversation-item:hover {
             background: var(--bg-tertiary);
@@ -1214,6 +1215,31 @@
             background: var(--blue);
             border-radius: 50%;
         }
+        .conversation-delete {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--red);
+            background: var(--bg-tertiary);
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .conversation-item:hover .conversation-delete {
+            opacity: 1;
+        }
+        .conversation-delete:hover {
+            background: var(--red);
+            color: white;
+        }
+        
         .user-action-buttons {
             display: flex;
             gap: 8px;
@@ -1516,7 +1542,9 @@
                     <i class="fas fa-chevron-right"></i>
                 </div>
                 <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);" id="chatUserName"></div>
-                <div></div>
+                <div onclick="deleteCurrentConversation()" style="color: var(--red); font-size: 18px; cursor: pointer;">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
             </div>
             <div id="chatMessages" class="chat-messages" style="flex: 1;"></div>
             <div class="reply-input" style="margin: 12px; padding: 8px; background: var(--bg-secondary); border-top: 0.5px solid var(--border-color);">
@@ -2431,22 +2459,12 @@
 
         // جهات الاتصال - الوصول إلى أرقام هاتف المستخدم
         window.loadContactsFromDevice = async function() {
-            toggleSidebar();
-            
             if (!('contacts' in navigator)) {
                 showToast('عذراً، متصفحك لا يدعم الوصول إلى جهات الاتصال');
                 return;
             }
             
             try {
-                const permissions = navigator.permissions;
-                const status = await permissions.query({ name: 'contacts' });
-                
-                if (status.state === 'denied') {
-                    showToast('الرجاء السماح بالوصول إلى جهات الاتصال من إعدادات المتصفح');
-                    return;
-                }
-                
                 const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true });
                 
                 if (!contacts || contacts.length === 0) {
@@ -3360,6 +3378,35 @@
                 console.error(e);
             }
         };
+        
+        // Delete conversation
+        window.deleteCurrentConversation = async function() {
+            if (!currentChatUserId) return;
+            if (!confirm(`هل أنت متأكد من حذف كل الرسائل مع ${currentChatUserName}؟`)) return;
+            
+            try {
+                const chatId = [currentUser.id, currentChatUserId].sort().join('_');
+                await remove(ref(db, `private_messages/${chatId}`));
+                showToast('🗑️ تم حذف المحادثة');
+                hideChatScreen();
+            } catch(e) {
+                showToast('فشل حذف المحادثة');
+            }
+        };
+        
+        window.deleteConversation = async function(userId, userName) {
+            if (!confirm(`هل أنت متأكد من حذف كل الرسائل مع ${userName}؟`)) return;
+            
+            try {
+                const chatId = [currentUser.id, userId].sort().join('_');
+                await remove(ref(db, `private_messages/${chatId}`));
+                showToast('🗑️ تم حذف المحادثة');
+                loadConversations();
+                loadMessages();
+            } catch(e) {
+                showToast('فشل حذف المحادثة');
+            }
+        };
 
         // Conversations Drawer (المحادثات)
         window.openConversationsDrawer = function() {
@@ -3430,6 +3477,9 @@
                                 <div class="conversation-last-msg">${escapeHtml(data.lastMsg.content.substring(0, 50))}</div>
                             </div>
                             <div class="conversation-time">${new Date(data.lastMsg.timestamp).toLocaleTimeString()}</div>
+                            <div class="conversation-delete" onclick="event.stopPropagation(); deleteConversation('${otherId}', '${data.user.name}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </div>
                         `;
                         container.appendChild(div);
                     }
@@ -3522,6 +3572,9 @@
                             </div>
                             <div class="conversation-time">${new Date(data.lastMsg.timestamp).toLocaleTimeString()}</div>
                             ${data.unreadCount > 0 ? `<div class="conversation-unread"></div>` : ''}
+                            <div class="conversation-delete" onclick="event.stopPropagation(); deleteConversation('${otherId}', '${data.user.name}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </div>
                         `;
                         container.appendChild(div);
                     }
