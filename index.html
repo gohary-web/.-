@@ -116,14 +116,6 @@
             to { transform: rotate(360deg); }
         }
         
-        .page-enter {
-            animation: slideInFromRight 0.4s var(--transition-smooth) forwards;
-        }
-        
-        .page-enter-bottom {
-            animation: slideInFromBottom 0.5s var(--transition-spring) forwards;
-        }
-        
         .card { 
             background: var(--bg-secondary); 
             border-radius: 16px; 
@@ -655,14 +647,28 @@
             direction: ltr;
             text-align: left;
         }
+
+        /* QR Generator Styles */
+        .qr-container {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 20px;
+        }
         
-        .preview-frame {
-            width: 100%;
-            height: 200px;
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
+        .qr-container canvas {
+            margin: 0 auto;
+            border-radius: 16px;
+            padding: 10px;
             background: white;
-            margin-top: 16px;
+        }
+        
+        .qr-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: center;
         }
     </style>
 </head>
@@ -779,6 +785,67 @@
             </div>
         </div>
 
+        <!-- شاشة مولد QR -->
+        <div id="qrGeneratorScreen" class="hidden">
+            <div class="nav-bar">
+                <div onclick="hideQRGenerator()" style="color: var(--blue); font-size: 20px; cursor: pointer;">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">مولد QR</div>
+                <div></div>
+            </div>
+            <div style="padding: 16px;">
+                <div class="card">
+                    <div class="input-group">
+                        <div class="input-label">
+                            <i class="fas fa-qrcode" style="margin-left: 4px;"></i>
+                            النص أو الرابط
+                        </div>
+                        <textarea id="qrText" class="input-field dir-ltr" placeholder="أدخل النص أو الرابط هنا..." rows="3" style="resize: vertical;"></textarea>
+                    </div>
+                    
+                    <button class="btn" onclick="generateQRCode()" id="generateQRBtn">
+                        <i class="fas fa-qrcode"></i>
+                        توليد QR Code
+                    </button>
+                </div>
+                
+                <div id="qrResult" class="hidden">
+                    <div class="card">
+                        <div class="qr-container">
+                            <div id="qrCodeDisplay" style="display: flex; justify-content: center;"></div>
+                            <div class="qr-actions">
+                                <button class="btn" onclick="downloadGeneratedQR()" style="width: auto; padding: 12px 24px;">
+                                    <i class="fas fa-download"></i>
+                                    تحميل
+                                </button>
+                                <button class="btn btn-outline" onclick="copyQRText()" style="width: auto; padding: 12px 24px;">
+                                    <i class="far fa-copy"></i>
+                                    نسخ النص
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="text-align: center; color: var(--text-secondary);">
+                        <i class="fas fa-camera" style="font-size: 32px; margin-bottom: 12px;"></i>
+                        <p>يمكنك أيضاً مسح QR Code من صورة</p>
+                        <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="scanQRFromImage(event)">
+                        <button class="btn btn-outline" onclick="document.getElementById('qrImageInput').click()" style="margin-top: 12px;">
+                            <i class="fas fa-image"></i>
+                            اختيار صورة
+                        </button>
+                        <div id="qrScanResult" style="margin-top: 16px; padding: 12px; background: var(--bg-tertiary); border-radius: 12px; display: none;">
+                            <div class="input-label">نتيجة المسح</div>
+                            <div id="scannedText" class="dir-ltr" style="word-break: break-all;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- شاشة رفع الكود -->
         <div id="codeHostingScreen" class="hidden">
             <div class="nav-bar">
@@ -804,7 +871,7 @@
                         <textarea id="htmlCode" placeholder="أكتب كود HTML/CSS/JavaScript هنا..."><!DOCTYPE html>
 <html>
 <head>
-    <title>موقعي</title>
+    <title>elgoharyX</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -927,13 +994,6 @@
                                 نسخ
                             </span>
                         </div>
-                        <div style="background: var(--bg-secondary); border-radius: 12px; padding: 24px; margin-top: 12px; text-align: center;">
-                            <div id="qrcode" style="display: flex; justify-content: center;"></div>
-                            <div onclick="downloadQR()" style="color: var(--blue); font-weight: 600; margin-top: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                                <i class="fas fa-download"></i>
-                                حفظ QR
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -973,6 +1033,12 @@
             <div class="sidebar-menu-item" onclick="showLinkDeviceFromSidebar()" id="linkDeviceMenuItem">
                 <span class="icon"><i class="fas fa-desktop"></i></span>
                 <span class="label">ربط جهاز كمبيوتر</span>
+                <span class="arrow"><i class="fas fa-chevron-left"></i></span>
+            </div>
+            
+            <div class="sidebar-menu-item" onclick="showQRGenerator()">
+                <span class="icon"><i class="fas fa-qrcode"></i></span>
+                <span class="label">مولد QR</span>
                 <span class="arrow"><i class="fas fa-chevron-left"></i></span>
             </div>
             
@@ -1096,6 +1162,7 @@
         let currentDeviceId = null;
         let editingDeviceId = null;
         let currentSiteUrl = '';
+        let currentQRText = '';
 
         try {
             app = initializeApp(firebaseConfig);
@@ -1357,6 +1424,113 @@
             document.getElementById('mainScreen').classList.remove('hidden');
         };
 
+        // وظائف مولد QR
+        window.showQRGenerator = function() {
+            toggleSidebar();
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('qrGeneratorScreen').classList.remove('hidden');
+            document.getElementById('qrResult').classList.add('hidden');
+            document.getElementById('qrText').value = '';
+            document.getElementById('qrScanResult').style.display = 'none';
+        };
+
+        window.hideQRGenerator = function() {
+            document.getElementById('qrGeneratorScreen').classList.add('hidden');
+            document.getElementById('mainScreen').classList.remove('hidden');
+        };
+
+        window.generateQRCode = function() {
+            const text = document.getElementById('qrText').value.trim();
+            
+            if (!text) {
+                showToast('أدخل نصاً أو رابطاً');
+                return;
+            }
+            
+            currentQRText = text;
+            
+            const qrDisplay = document.getElementById('qrCodeDisplay');
+            qrDisplay.innerHTML = '';
+            
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            new QRCode(qrDisplay, {
+                text: text,
+                width: 250,
+                height: 250,
+                colorDark: isDark ? "#FFFFFF" : "#000000",
+                colorLight: isDark ? "#1C1C1E" : "#FFFFFF",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            document.getElementById('qrResult').classList.remove('hidden');
+        };
+
+        window.downloadGeneratedQR = function() {
+            const canvas = document.querySelector('#qrCodeDisplay canvas');
+            if (canvas) {
+                const a = document.createElement('a');
+                a.download = 'elgoharyX-qr.png';
+                a.href = canvas.toDataURL('image/png');
+                a.click();
+                showToast('📸 تم حفظ QR Code');
+            }
+        };
+
+        window.copyQRText = function() {
+            if (currentQRText) {
+                navigator.clipboard?.writeText(currentQRText).then(() => showToast('📋 تم نسخ النص'));
+            }
+        };
+
+        window.scanQRFromImage = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    if (window.jsQR) {
+                        const code = window.jsQR(imageData.data, canvas.width, canvas.height);
+                        
+                        if (code) {
+                            document.getElementById('scannedText').textContent = code.data;
+                            document.getElementById('qrScanResult').style.display = 'block';
+                            showToast('✅ تم قراءة QR Code بنجاح');
+                        } else {
+                            showToast('❌ لم يتم العثور على QR Code في الصورة');
+                        }
+                    } else {
+                        loadJsQR().then(() => {
+                            const code = window.jsQR(imageData.data, canvas.width, canvas.height);
+                            
+                            if (code) {
+                                document.getElementById('scannedText').textContent = code.data;
+                                document.getElementById('qrScanResult').style.display = 'block';
+                                showToast('✅ تم قراءة QR Code بنجاح');
+                            } else {
+                                showToast('❌ لم يتم العثور على QR Code في الصورة');
+                            }
+                        });
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            // إعادة تعيين input file
+            event.target.value = '';
+        };
+
         // وظائف رفع الكود
         window.showCodeHosting = function() {
             toggleSidebar();
@@ -1395,9 +1569,7 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
 
             try {
-                // التحقق من الرابط المخصص
                 if (customSlug) {
-                    // تنظيف الرابط المخصص
                     customSlug = customSlug.replace(/[^a-z0-9-_]/g, '');
                     
                     if (customSlug.length < 3) {
@@ -1407,7 +1579,6 @@
                         return;
                     }
                     
-                    // التحقق من عدم وجود رابط بنفس الاسم
                     const slugSnap = await get(ref(db, 'hosted_sites_slugs/' + customSlug));
                     if (slugSnap.exists()) {
                         showToast('الرابط المخصص مستخدم، اختر رابطاً آخر');
@@ -1416,13 +1587,11 @@
                         return;
                     }
                 } else {
-                    // إنشاء رابط تلقائي
                     customSlug = 'site_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4);
                 }
 
                 const projectId = 'site_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
                 
-                // حفظ المشروع في قاعدة البيانات
                 const siteData = {
                     id: projectId,
                     name: projectName,
@@ -1436,30 +1605,25 @@
                 await set(ref(db, 'hosted_sites/' + projectId), siteData);
                 await set(ref(db, 'hosted_sites_slugs/' + customSlug), projectId);
                 
-                // حفظ في قائمة مشاريع المستخدم
                 await set(ref(db, 'user_sites/' + currentUser.id + '/' + projectId), {
                     name: projectName,
                     slug: customSlug,
                     created_at: new Date().toISOString()
                 });
 
-                // إنشاء رابط الموقع
                 const siteUrl = `${location.origin}${location.pathname}?site=${customSlug}`;
                 currentSiteUrl = siteUrl;
                 
-                // عرض النتيجة
                 document.getElementById('siteUrl').textContent = siteUrl;
                 document.getElementById('siteUrl').href = siteUrl;
                 
                 document.getElementById('deployResult').classList.remove('hidden');
                 
-                // إعادة تعيين الحقول
                 document.getElementById('projectName').value = '';
                 document.getElementById('customSiteSlug').value = '';
                 
                 showToast('✅ تم رفع الموقع بنجاح!');
                 
-                // تحديث قائمة المواقع
                 loadSites();
             } catch (e) {
                 showToast('خطأ في الرفع: ' + e.message);
@@ -1478,7 +1642,6 @@
             window.open(currentSiteUrl, '_blank');
         };
 
-        // تحميل قائمة المواقع
         function loadSites() {
             if (!currentUser) return;
             
@@ -1562,7 +1725,6 @@
             }
         };
 
-        // عرض الموقع
         async function viewSite(slug) {
             document.getElementById('authScreen')?.classList.add('hidden');
             document.getElementById('mainScreen')?.classList.add('hidden');
@@ -1570,7 +1732,6 @@
             document.getElementById('redirectScreen')?.classList.remove('hidden');
             
             try {
-                // الحصول على projectId من slug
                 const slugSnap = await get(ref(db, 'hosted_sites_slugs/' + slug));
                 if (!slugSnap.exists()) {
                     document.getElementById('redirectStatus').textContent = 'الموقع غير موجود';
@@ -1583,7 +1744,6 @@
                 
                 if (snap.exists()) {
                     const siteData = snap.val();
-                    // عرض الموقع مباشرة
                     document.write(siteData.code);
                     document.close();
                 } else {
@@ -1596,7 +1756,6 @@
             }
         }
 
-        // إدارة الأجهزة
         function loadDevices() {
             if (!currentUser) return;
             
@@ -1703,7 +1862,6 @@
             }
         };
 
-        // QR Scanner functions
         window.startQRScanner = async function() {
             const scannerDiv = document.getElementById('qrScanner');
             const video = document.getElementById('qrVideo');
@@ -1944,6 +2102,7 @@
             document.getElementById('mainScreen').classList.add('hidden');
             document.getElementById('linkDeviceScreen').classList.add('hidden');
             document.getElementById('codeHostingScreen').classList.add('hidden');
+            document.getElementById('qrGeneratorScreen').classList.add('hidden');
             document.getElementById('redirectScreen').classList.add('hidden');
             
             if (isPC) {
@@ -1962,6 +2121,7 @@
             document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('linkDeviceScreen').classList.add('hidden');
             document.getElementById('codeHostingScreen').classList.add('hidden');
+            document.getElementById('qrGeneratorScreen').classList.add('hidden');
             document.getElementById('redirectScreen').classList.add('hidden');
             document.getElementById('mainScreen').classList.remove('hidden');
             
@@ -2111,15 +2271,6 @@
                 const resultArea = document.getElementById('resultArea');
                 resultArea.classList.remove('hidden');
 
-                document.getElementById('qrcode').innerHTML = '';
-                new QRCode(document.getElementById('qrcode'), { 
-                    text: shortUrl, 
-                    width: 160, 
-                    height: 160,
-                    colorDark: document.body.classList.contains('dark-mode') ? "#FFFFFF" : "#000000",
-                    colorLight: document.body.classList.contains('dark-mode') ? "#1C1C1E" : "#FFFFFF"
-                });
-
                 document.getElementById('longUrl').value = '';
                 document.getElementById('customSlug').value = '';
                 showToast('✅ تم إنشاء الرابط');
@@ -2131,23 +2282,11 @@
             }
         };
 
-        window.downloadQR = function() {
-            const canvas = document.querySelector('#qrcode canvas');
-            if (canvas) {
-                const a = document.createElement('a');
-                a.download = 'elgoharyX-qr.png';
-                a.href = canvas.toDataURL();
-                a.click();
-                showToast('📸 تم حفظ QR');
-            }
-        };
-
         async function redirect() {
             const params = new URLSearchParams(location.search);
             const slug = Array.from(params.keys())[0];
             const siteSlug = params.get('site');
             
-            // التحقق مما إذا كان الطلب لعرض موقع
             if (location.search.includes('?site=') || siteSlug) {
                 const actualSiteSlug = siteSlug || location.search.substring(6);
                 await viewSite(actualSiteSlug);
@@ -2160,6 +2299,7 @@
             document.getElementById('mainScreen')?.classList.add('hidden');
             document.getElementById('linkDeviceScreen')?.classList.add('hidden');
             document.getElementById('codeHostingScreen')?.classList.add('hidden');
+            document.getElementById('qrGeneratorScreen')?.classList.add('hidden');
             document.getElementById('redirectScreen')?.classList.remove('hidden');
 
             try {
