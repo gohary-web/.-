@@ -1,5 +1,5 @@
 
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -345,6 +345,8 @@
             color: white;
             font-size: 24px;
             flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
         }
 
         .browser-info {
@@ -358,6 +360,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .browser-url {
@@ -380,6 +383,7 @@
             gap: 12px;
             font-size: 11px;
             color: var(--text-secondary);
+            flex-wrap: wrap;
         }
 
         .browser-meta i {
@@ -390,6 +394,7 @@
             display: flex;
             gap: 4px;
             margin-top: 8px;
+            flex-wrap: wrap;
         }
 
         .browser-btn {
@@ -419,12 +424,20 @@
         .search-bar {
             background: var(--bg-secondary);
             border-radius: 30px;
-            padding: 8px 16px;
+            padding: 8px 20px;
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 16px;
-            border: 0.5px solid var(--border-color);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 6px var(--shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar:focus-within {
+            border-color: var(--blue);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+            transform: scale(1.01);
         }
 
         .search-bar i {
@@ -436,7 +449,7 @@
             flex: 1;
             border: none;
             background: transparent;
-            padding: 10px 0;
+            padding: 12px 0;
             font-size: 16px;
             color: var(--text-primary);
             outline: none;
@@ -1044,7 +1057,60 @@
             font-weight: 500;
         }
 
-        /* Empty State */
+        /* Rating Stars */
+        .rating-stars {
+            display: inline-flex;
+            gap: 4px;
+            direction: ltr;
+        }
+        .rating-star {
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+        .rating-star.active {
+            color: #FFD700;
+        }
+        .rating-star:hover,
+        .rating-star:hover ~ .rating-star {
+            color: #FFD700;
+        }
+
+        /* Chat Screen */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+        .message-sent {
+            background: var(--blue);
+            color: white;
+            align-self: flex-end;
+            border-bottom-left-radius: 4px;
+        }
+        .message-received {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-bottom-right-radius: 4px;
+        }
+        .message-time {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -1061,36 +1127,15 @@
             font-size: 16px;
         }
 
-        /* Search Suggestions */
-        .search-suggestions {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            margin-top: 8px;
-            overflow: hidden;
-            border: 0.5px solid var(--border-color);
-        }
-
-        .suggestion-item {
-            padding: 12px 16px;
+        .profile-header {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: opacity 0.2s;
         }
-
-        .suggestion-item:hover {
-            background: var(--bg-tertiary);
-        }
-
-        .suggestion-item i {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .suggestion-text {
-            flex: 1;
-            color: var(--text-primary);
+        .profile-header:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -1219,17 +1264,12 @@
                 </div>
             </div>
             <div style="padding: 16px;">
-                <!-- شريط البحث -->
                 <div class="search-bar">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="browserSearchInput" placeholder="ابحث عن مواقع..." onkeyup="handleBrowserSearch(event)" onfocus="showSearchSuggestions()" autocomplete="off">
+                    <input type="text" id="browserSearchInput" placeholder="ابحث عن مواقع..." onkeyup="handleBrowserSearch(event)" autocomplete="off">
                     <i class="fas fa-times" onclick="clearBrowserSearch()" style="cursor: pointer;" id="clearSearchBtn"></i>
                 </div>
 
-                <!-- اقتراحات البحث -->
-                <div id="searchSuggestions" class="search-suggestions hidden"></div>
-
-                <!-- فلاتر التصنيف -->
                 <div class="filter-tabs">
                     <div class="filter-tab active" onclick="setBrowserFilter('all')">
                         <i class="fas fa-globe"></i>
@@ -1245,17 +1285,15 @@
                     </div>
                     <div class="filter-tab" onclick="setBrowserFilter('popular')">
                         <i class="fas fa-star"></i>
-                        المميزة
+                        الأفضل تقييماً
                     </div>
                 </div>
 
-                <!-- المحتوى -->
                 <div id="browserContent">
                     <div id="browserLoading"><div class="loader"></div></div>
                     <div id="browserResults"></div>
                 </div>
 
-                <!-- حالة فارغة -->
                 <div id="browserEmptyState" class="empty-state hidden">
                     <i class="fas fa-globe"></i>
                     <p>لا توجد مواقع متاحة</p>
@@ -1308,6 +1346,22 @@
             </div>
         </div>
 
+        <!-- شاشة المحادثة الخاصة -->
+        <div id="chatScreen" class="hidden" style="display: flex; flex-direction: column; height: 100vh;">
+            <div class="nav-bar">
+                <div onclick="hideChatScreen()" style="color: var(--blue); font-size: 20px; cursor: pointer;">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);" id="chatUserName"></div>
+                <div></div>
+            </div>
+            <div id="chatMessages" class="chat-messages" style="flex: 1;"></div>
+            <div class="reply-input" style="margin: 12px; padding: 8px; background: var(--bg-secondary); border-top: 0.5px solid var(--border-color);">
+                <input type="text" id="chatMessageInput" placeholder="اكتب رسالتك..." style="flex: 1;">
+                <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+
         <!-- مودال التعليقات -->
         <div id="commentsModal" class="modal">
             <div class="modal-content">
@@ -1320,6 +1374,44 @@
                 </div>
                 <div style="margin-top: 12px;">
                     <button class="btn btn-outline" onclick="closeCommentsModal()">إغلاق</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- لوحة تحكم الموقع -->
+        <div id="siteDashboardScreen" class="hidden">
+            <div class="nav-bar">
+                <div onclick="hideSiteDashboard()" style="color: var(--blue); font-size: 20px; cursor: pointer;">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);" id="dashboardSiteName"></div>
+                <div onclick="saveSiteEdits()" style="color: var(--blue); font-size: 18px; cursor: pointer;">
+                    <i class="fas fa-save"></i>
+                </div>
+            </div>
+            <div style="padding: 16px;">
+                <div class="card">
+                    <div class="section-title">إحصائيات الموقع</div>
+                    <div class="site-details" style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                        <span><i class="fas fa-eye"></i> <span id="dashboardViews">0</span> مشاهدة</span>
+                        <span><i class="fas fa-star"></i> <span id="dashboardRating">0</span> / 5</span>
+                        <span><i class="fas fa-calendar"></i> <span id="dashboardDate"></span></span>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-label">رابط الموقع</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="text" id="dashboardSiteUrl" class="input-field dir-ltr" readonly>
+                            <span onclick="copyDashboardUrl()" style="color: var(--blue); cursor: pointer;"><i class="far fa-copy"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="section-title">تعديل الكود</div>
+                    <div class="code-editor">
+                        <textarea id="dashboardHtmlCode" style="min-height: 300px;"></textarea>
+                    </div>
+                    <button class="btn" onclick="saveSiteEdits()" style="margin-top: 8px;">حفظ التغييرات</button>
+                    <button class="btn btn-outline" onclick="deleteSiteFromDashboard()" style="margin-top: 8px; background: var(--red); color: white;">حذف الموقع</button>
                 </div>
             </div>
         </div>
@@ -1406,6 +1498,11 @@
                         <input type="text" id="siteDescription" class="input-field" placeholder="وصف مختصر للموقع...">
                     </div>
                     
+                    <div class="input-group">
+                        <div class="input-label">رابط صورة الموقع (اختياري)</div>
+                        <input type="text" id="siteThumbnail" class="input-field dir-ltr" placeholder="https://example.com/thumbnail.jpg">
+                    </div>
+
                     <div class="input-group">
                         <div class="input-label">رابط مخصص (اختياري)</div>
                         <input type="text" id="customSiteSlug" class="input-field dir-ltr" placeholder="my-site">
@@ -1723,6 +1820,15 @@
         let allSites = [];
         let currentFilter = 'all';
         let searchTimeout = null;
+        
+        // Chat variables
+        let currentChatUserId = null;
+        let currentChatUserName = '';
+        let chatMessagesListener = null;
+
+        // Dashboard variables
+        let currentDashboardSiteId = null;
+        let currentDashboardSiteData = null;
 
         try {
             app = initializeApp(firebaseConfig);
@@ -2030,7 +2136,6 @@
             const resultsDiv = document.getElementById('browserResults');
             resultsDiv.innerHTML = '';
             
-            // ترتيب حسب الفلتر
             let filteredSites = [...sites];
             
             if (currentFilter === 'trending') {
@@ -2038,10 +2143,14 @@
             } else if (currentFilter === 'recent') {
                 filteredSites.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             } else if (currentFilter === 'popular') {
-                filteredSites.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+                filteredSites.sort((a, b) => {
+                    const ratingA = a.avgRating || 0;
+                    const ratingB = b.avgRating || 0;
+                    if (ratingB !== ratingA) return ratingB - ratingA;
+                    return (b.views || 0) - (a.views || 0);
+                });
             }
             
-            // عرض الأكثر زيارة في الأعلى
             if (currentFilter === 'all' && filteredSites.length > 0) {
                 const trendingSites = [...filteredSites].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 4);
                 
@@ -2063,7 +2172,6 @@
                 });
             }
             
-            // عرض المواقع الحديثة
             const recentSites = [...filteredSites].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             
             const recentSection = document.createElement('div');
@@ -2114,15 +2222,20 @@
             const createdAt = new Date(site.created_at).toLocaleDateString('ar-EG');
             const firstLetter = site.name ? site.name.charAt(0).toUpperCase() : 'W';
             const views = site.views || 0;
+            const avgRating = site.avgRating || 0;
+            const thumbnailStyle = site.thumbnail ? `background-image: url('${site.thumbnail}'); background-size: cover;` : '';
             
             div.innerHTML = `
-                <div class="browser-thumbnail">
-                    <span>${firstLetter}</span>
+                <div class="browser-thumbnail" style="${thumbnailStyle}">
+                    ${!site.thumbnail ? `<span>${firstLetter}</span>` : ''}
                 </div>
                 <div class="browser-info">
                     <div class="browser-title">
                         ${site.name || 'موقع بدون اسم'}
                         ${site.featured ? '<i class="fas fa-star" style="color: var(--orange); font-size: 12px;"></i>' : ''}
+                        <div class="rating-stars" style="margin-right: auto;" onclick="event.stopPropagation()">
+                            ${renderRatingStars(site.slug, avgRating)}
+                        </div>
                     </div>
                     <div class="browser-url">/${site.slug}</div>
                     <div class="browser-description">${site.description || 'موقع مميز على منصة elgoharyX'}</div>
@@ -2130,6 +2243,7 @@
                         <span><i class="fas fa-user"></i> ${site.created_by_name || 'مستخدم'}</span>
                         <span><i class="fas fa-calendar"></i> ${createdAt}</span>
                         <span><i class="fas fa-eye"></i> ${views}</span>
+                        <span><i class="fas fa-star"></i> ${avgRating.toFixed(1)}</span>
                     </div>
                     <div class="browser-actions">
                         <div class="browser-btn visit" onclick="visitSite('${site.slug}')">
@@ -2147,8 +2261,44 @@
             return div;
         }
 
+        function renderRatingStars(siteSlug, currentRating) {
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                starsHtml += `<i class="fas fa-star rating-star ${i <= currentRating ? 'active' : ''}" data-value="${i}" onclick="rateSite('${siteSlug}', ${i})"></i>`;
+            }
+            return starsHtml;
+        }
+
+        window.rateSite = async function(slug, rating) {
+            if (!currentUser) {
+                showToast('سجل الدخول لتقييم الموقع');
+                return;
+            }
+            try {
+                const slugSnap = await get(ref(db, 'hosted_sites_slugs/' + slug));
+                if (!slugSnap.exists()) return;
+                const projectId = slugSnap.val();
+                const ratingRef = ref(db, `hosted_sites/${projectId}/ratings/${currentUser.id}`);
+                await set(ratingRef, rating);
+                
+                // Recalculate average
+                const ratingsSnap = await get(ref(db, `hosted_sites/${projectId}/ratings`));
+                let total = 0, count = 0;
+                if (ratingsSnap.exists()) {
+                    const ratings = ratingsSnap.val();
+                    for (let key in ratings) {
+                        total += ratings[key];
+                        count++;
+                    }
+                }
+                const avg = count > 0 ? total / count : 0;
+                await update(ref(db, `hosted_sites/${projectId}`), { avgRating: avg });
+                showToast(`تم التقييم ${rating} نجوم`);
+                loadAllSites();
+            } catch(e) { showToast('فشل التقييم'); }
+        };
+
         window.visitSite = async function(slug) {
-            // زيادة عداد المشاهدات
             try {
                 const slugSnap = await get(ref(db, 'hosted_sites_slugs/' + slug));
                 if (slugSnap.exists()) {
@@ -2172,14 +2322,14 @@
 
         window.setBrowserFilter = function(filter) {
             currentFilter = filter;
-            
-            // تحديث التبويبات النشطة
             document.querySelectorAll('.filter-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            event.target.closest('.filter-tab').classList.add('active');
-            
-            // إعادة عرض المواقع
+            if (event && event.target) {
+                event.target.closest('.filter-tab').classList.add('active');
+            } else {
+                document.querySelector(`.filter-tab[onclick="setBrowserFilter('${filter}')"]`)?.classList.add('active');
+            }
             displaySites(allSites);
         };
 
@@ -2211,11 +2361,7 @@
             displaySites(allSites);
         };
 
-        window.showSearchSuggestions = function() {
-            // يمكن إضافة اقتراحات البحث هنا
-        };
-
-        // وظائف المنتدى
+        // وظائف المنتدى والمحادثة
         window.showForum = function() {
             toggleSidebar();
             document.getElementById('mainScreen').classList.add('hidden');
@@ -2305,10 +2451,12 @@
                         div.style.animationDelay = (index * 0.05) + 's';
                         div.innerHTML = `
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <img src="${post.authorAvatar}" class="post-avatar" alt="${post.authorName}">
-                                <div>
-                                    <div class="post-author">${post.authorName}</div>
-                                    <div class="post-time">${postDate}</div>
+                                <div class="profile-header" onclick="openChat('${post.authorId}', '${post.authorName}')">
+                                    <img src="${post.authorAvatar}" class="post-avatar" alt="${post.authorName}">
+                                    <div>
+                                        <div class="post-author">${post.authorName}</div>
+                                        <div class="post-time">${postDate}</div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
@@ -2432,6 +2580,152 @@
                 showToast('✅ تم إضافة التعليق');
             } catch (e) {
                 showToast('خطأ في إضافة التعليق');
+            }
+        };
+
+        // Chat Functions
+        window.openChat = function(userId, userName) {
+            if (userId === currentUser.id) {
+                showToast('لا يمكنك مراسلة نفسك');
+                return;
+            }
+            currentChatUserId = userId;
+            currentChatUserName = userName;
+            document.getElementById('chatUserName').textContent = userName;
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('forumScreen').classList.add('hidden');
+            document.getElementById('chatScreen').classList.remove('hidden');
+            
+            loadChatMessages();
+        };
+
+        window.hideChatScreen = function() {
+            if (chatMessagesListener) {
+                chatMessagesListener();
+                chatMessagesListener = null;
+            }
+            document.getElementById('chatScreen').classList.add('hidden');
+            document.getElementById('mainScreen').classList.remove('hidden');
+            currentChatUserId = null;
+        };
+
+        function loadChatMessages() {
+            if (!currentChatUserId) return;
+            const chatId1 = `${currentUser.id}_${currentChatUserId}`;
+            const chatId2 = `${currentChatUserId}_${currentUser.id}`;
+            const messagesRef = ref(db, `private_messages/${chatId1}`);
+            
+            if (chatMessagesListener) chatMessagesListener();
+            
+            chatMessagesListener = onValue(messagesRef, (snapshot) => {
+                const container = document.getElementById('chatMessages');
+                container.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const messages = snapshot.val();
+                    const messageList = Object.values(messages).sort((a, b) => a.timestamp - b.timestamp);
+                    
+                    messageList.forEach(msg => {
+                        const div = document.createElement('div');
+                        div.className = `message-bubble ${msg.from === currentUser.id ? 'message-sent' : 'message-received'}`;
+                        div.innerHTML = `
+                            <div>${msg.content}</div>
+                            <div class="message-time">${new Date(msg.timestamp).toLocaleTimeString()}</div>
+                        `;
+                        container.appendChild(div);
+                    });
+                    container.scrollTop = container.scrollHeight;
+                } else {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><p>لا توجد رسائل بعد، ابدأ المحادثة!</p></div>';
+                }
+            });
+        }
+
+        window.sendChatMessage = async function() {
+            const content = document.getElementById('chatMessageInput').value.trim();
+            if (!content || !currentChatUserId) return;
+            
+            try {
+                const chatId1 = `${currentUser.id}_${currentChatUserId}`;
+                const chatId2 = `${currentChatUserId}_${currentUser.id}`;
+                const msgData = {
+                    from: currentUser.id,
+                    fromName: currentUser.name,
+                    to: currentChatUserId,
+                    toName: currentChatUserName,
+                    content: content,
+                    timestamp: Date.now(),
+                    read: false
+                };
+                
+                await push(ref(db, `private_messages/${chatId1}`), msgData);
+                await push(ref(db, `private_messages/${chatId2}`), msgData);
+                
+                document.getElementById('chatMessageInput').value = '';
+            } catch(e) {
+                showToast('فشل الإرسال');
+            }
+        };
+
+        // Dashboard Functions
+        window.showSiteDashboard = async function(siteId) {
+            currentDashboardSiteId = siteId;
+            const snap = await get(ref(db, 'hosted_sites/' + siteId));
+            if (snap.exists()) {
+                currentDashboardSiteData = snap.val();
+                document.getElementById('dashboardSiteName').textContent = currentDashboardSiteData.name;
+                document.getElementById('dashboardViews').textContent = currentDashboardSiteData.views || 0;
+                const avgRating = currentDashboardSiteData.avgRating || 0;
+                document.getElementById('dashboardRating').textContent = avgRating.toFixed(1);
+                document.getElementById('dashboardDate').textContent = new Date(currentDashboardSiteData.created_at).toLocaleDateString('ar-EG');
+                const url = `${location.origin}${location.pathname}?site=${currentDashboardSiteData.slug}`;
+                document.getElementById('dashboardSiteUrl').value = url;
+                document.getElementById('dashboardHtmlCode').value = currentDashboardSiteData.code;
+                
+                toggleSidebar();
+                document.getElementById('mainScreen').classList.add('hidden');
+                document.getElementById('siteDashboardScreen').classList.remove('hidden');
+            } else {
+                showToast('الموقع غير موجود');
+            }
+        };
+
+        window.hideSiteDashboard = function() {
+            document.getElementById('siteDashboardScreen').classList.add('hidden');
+            document.getElementById('mainScreen').classList.remove('hidden');
+            currentDashboardSiteId = null;
+            currentDashboardSiteData = null;
+        };
+
+        window.saveSiteEdits = async function() {
+            if (!currentDashboardSiteId || !currentDashboardSiteData) return;
+            const newCode = document.getElementById('dashboardHtmlCode').value;
+            try {
+                await update(ref(db, 'hosted_sites/' + currentDashboardSiteId), { code: newCode });
+                showToast('✅ تم حفظ التغييرات');
+            } catch(e) {
+                showToast('فشل الحفظ');
+            }
+        };
+
+        window.copyDashboardUrl = function() {
+            const url = document.getElementById('dashboardSiteUrl').value;
+            navigator.clipboard?.writeText(url).then(() => showToast('📋 تم نسخ الرابط'));
+        };
+
+        window.deleteSiteFromDashboard = async function() {
+            if (!confirm('هل أنت متأكد من حذف هذا الموقع نهائياً؟')) return;
+            if (!currentDashboardSiteId || !currentDashboardSiteData) return;
+            try {
+                await remove(ref(db, 'hosted_sites/' + currentDashboardSiteId));
+                await remove(ref(db, 'hosted_sites_slugs/' + currentDashboardSiteData.slug));
+                await remove(ref(db, 'user_sites/' + currentUser.id + '/' + currentDashboardSiteId));
+                showToast('🗑️ تم حذف الموقع');
+                hideSiteDashboard();
+                loadSites();
+                loadAllSites();
+            } catch(e) {
+                showToast('فشل الحذف');
             }
         };
 
@@ -2562,6 +2856,7 @@
 
             const projectName = document.getElementById('projectName').value.trim();
             const siteDescription = document.getElementById('siteDescription').value.trim();
+            const siteThumbnail = document.getElementById('siteThumbnail').value.trim();
             let customSlug = document.getElementById('customSiteSlug').value.trim().toLowerCase();
             const htmlCode = document.getElementById('htmlCode').value;
 
@@ -2607,6 +2902,7 @@
                     id: projectId,
                     name: projectName,
                     description: siteDescription || 'موقع مميز على منصة elgoharyX',
+                    thumbnail: siteThumbnail || null,
                     slug: customSlug,
                     code: htmlCode,
                     created_at: new Date().toISOString(),
@@ -2614,7 +2910,9 @@
                     created_by_name: currentUser.name,
                     views: 0,
                     likes: 0,
-                    featured: false
+                    featured: false,
+                    avgRating: 0,
+                    ratings: {}
                 };
 
                 await set(ref(db, 'hosted_sites/' + projectId), siteData);
@@ -2636,11 +2934,13 @@
                 
                 document.getElementById('projectName').value = '';
                 document.getElementById('siteDescription').value = '';
+                document.getElementById('siteThumbnail').value = '';
                 document.getElementById('customSiteSlug').value = '';
                 
                 showToast('✅ تم رفع الموقع بنجاح!');
                 
                 loadSites();
+                loadAllSites();
             } catch (e) {
                 showToast('خطأ في الرفع: ' + e.message);
             } finally {
@@ -2706,6 +3006,9 @@
                                 <div class="site-action-btn open" onclick="openSiteFromList('${site.slug}')" title="فتح الموقع">
                                     <i class="fas fa-external-link-alt"></i>
                                 </div>
+                                <div class="site-action-btn" onclick="showSiteDashboard('${siteId}')" title="لوحة التحكم" style="color: var(--blue);">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
                                 <div class="site-action-btn delete" onclick="deleteSite('${siteId}', '${site.slug}')" title="حذف">
                                     <i class="far fa-trash-alt"></i>
                                 </div>
@@ -2736,6 +3039,8 @@
                 await remove(ref(db, 'hosted_sites_slugs/' + slug));
                 await remove(ref(db, 'user_sites/' + currentUser.id + '/' + siteId));
                 showToast('🗑️ تم حذف الموقع');
+                loadSites();
+                loadAllSites();
             } catch (e) {
                 showToast('فشل الحذف');
             }
@@ -3124,6 +3429,8 @@
             document.getElementById('forumScreen').classList.add('hidden');
             document.getElementById('browserScreen').classList.add('hidden');
             document.getElementById('redirectScreen').classList.add('hidden');
+            document.getElementById('chatScreen').classList.add('hidden');
+            document.getElementById('siteDashboardScreen').classList.add('hidden');
             
             if (isPC) {
                 document.getElementById('pcAuthContent').classList.remove('hidden');
@@ -3145,6 +3452,8 @@
             document.getElementById('forumScreen').classList.add('hidden');
             document.getElementById('browserScreen').classList.add('hidden');
             document.getElementById('redirectScreen').classList.add('hidden');
+            document.getElementById('chatScreen').classList.add('hidden');
+            document.getElementById('siteDashboardScreen').classList.add('hidden');
             document.getElementById('mainScreen').classList.remove('hidden');
             
             document.getElementById('displayName').textContent = currentUser.name;
@@ -3394,3 +3703,4 @@
     </script>
 </body>
 </html>
+```
